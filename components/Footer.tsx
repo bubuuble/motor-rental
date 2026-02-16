@@ -77,8 +77,8 @@ export default function Footer() {
             <ul className="space-y-3">
               {[
               { label: 'Beranda', href: '/' },
-              { label: 'Daftar Motor', href: '/' },
-              { label: 'Booking Online', href: '/' },
+              { label: 'Daftar Motor', href: '/motors' },
+              { label: 'Booking Online', href: '/motors' },
               { label: 'Syarat & Ketentuan', href: '/syarat-ketentuan' },
               { label: 'FAQ', href: '/' },
               { label: 'Hubungi Kami', href: '/' }

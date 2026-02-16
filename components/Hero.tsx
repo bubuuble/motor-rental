@@ -46,7 +46,7 @@ export default function Hero() {
             {/* CTA */}
             <div className="flex flex-wrap gap-4 pt-4">
               <a 
-                href="#motor"
+                href="/motors"
                 className="group relative inline-flex items-center gap-3 bg-[#1a1a1a] text-white px-8 py-4 rounded-2xl font-bold text-lg overflow-hidden transition-all hover:scale-105 hover:shadow-2xl hover:shadow-[#1a1a1a]/20"
               >
                 <span className="absolute inset-0 bg-gradient-to-r from-[#FF6B35] to-[#FF8F5F] opacity-0 group-hover:opacity-100 transition-opacity"></span>
