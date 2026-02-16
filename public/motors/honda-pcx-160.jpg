@@ -1,0 +1,6 @@
+<!-- Honda PCX 160 -->
+<svg width="400" height="300" xmlns="http://www.w3.org/2000/svg">
+  <rect width="400" height="300" fill="#fce4ec"/>
+  <text x="200" y="140" text-anchor="middle" fill="#c2185b" font-family="Arial, sans-serif" font-size="14" font-weight="bold">Honda PCX 160</text>
+  <text x="200" y="160" text-anchor="middle" fill="#c2185b" font-family="Arial, sans-serif" font-size="12">Motor Hybrid</text>
+</svg>

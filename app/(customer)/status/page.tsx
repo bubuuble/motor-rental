@@ -1,0 +1,234 @@
+'use client';
+
+import { useEffect, useState, useMemo } from 'react';
+import { createClient } from '@/utils/supabase/client';
+import { Clock, Loader2, Calendar, CreditCard, Info } from 'lucide-react';
+
+// 1. Interface Lengkap sesuai tabel bookings di Supabase
+interface Booking {
+  id: string;
+  motor_name: string;
+  motor_id: string;
+  start_date: string;
+  end_date: string;
+  start_time: string;
+  end_time: string;
+  total_price: number;
+  status: string;
+  is_delivery: boolean;
+  notes: string | null;
+  rejection_reason: string | null;
+  created_at: string;
+}
+
+export default function StatusPage() {
+  const [bookings, setBookings] = useState<Booking[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [expandedId, setExpandedId] = useState<string | null>(null); // State untuk dropdown
+  
+  const supabase = useMemo(() => createClient(), []);
+
+  const submitAppeal = async (bookingId: string, appealReason: string) => {
+    const { error } = await supabase
+      .from('bookings')
+      .update({ 
+        status: 'Banding',
+        appeal_reason: appealReason 
+      })
+      .eq('id', bookingId);
+    
+    if (!error) {
+      alert('Banding berhasil diajukan. Menunggu tinjauan owner.');
+      // Refresh data
+      const { data: { user } } = await supabase.auth.getUser();
+      if (user) {
+        const { data } = await supabase
+          .from('bookings')
+          .select('*')
+          .order('created_at', { ascending: false });
+        setBookings((data as Booking[]) || []);
+      }
+    } else {
+      alert('Gagal mengajukan banding. Silakan coba lagi.');
+    }
+  };
+
+  useEffect(() => {
+    const fetchBookings = async () => {
+      const { data: { user } } = await supabase.auth.getUser();
+      if (user) {
+        const { data } = await supabase
+          .from('bookings')
+          .select('*')
+          .order('created_at', { ascending: false });
+        
+        setBookings((data as Booking[]) || []);
+      }
+      setLoading(false);
+    };
+    fetchBookings();
+  }, [supabase]);
+
+  if (loading) return (
+    <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-[#FAF9F6] to-white">
+      <Loader2 className="animate-spin text-[#FF6B35]" size={40} />
+    </div>
+  );
+
+  return (
+    <div className="min-h-screen bg-gradient-to-b from-white via-[#FAF9F6] to-white py-12">
+      <div className="max-w-5xl mx-auto px-4">
+        {/* Header */}
+        <div className="mb-12 space-y-4">
+          <div className="inline-flex items-center gap-2 bg-gradient-to-r from-[#FF6B35]/10 to-[#00D9FF]/10 border border-[#FF6B35]/20 px-4 py-2 rounded-full">
+            <Clock size={14} className="text-[#FF6B35]" />
+            <span className="text-xs font-bold tracking-wider uppercase text-[#1a1a1a]">Tracking</span>
+          </div>
+          <h1 className="text-5xl font-black text-[#1a1a1a] tracking-tight">Status Pemesanan</h1>
+          <p className="text-lg text-[#1a1a1a]/60 font-medium">Pantau progress booking motor Anda secara realtime.</p>
+        </div>
+
+        <div className="space-y-6">
+        {bookings.length === 0 ? (
+          <div className="text-center py-32 border-2 border-dashed border-[#1a1a1a]/10 rounded-3xl text-[#1a1a1a]/30 bg-gradient-to-br from-[#FAF9F6] to-white">
+            <Clock size={60} className="mx-auto mb-4 opacity-20" />
+            <p className="font-black text-lg">Belum ada pemesanan motor</p>
+            <p className="text-sm mt-2">Booking motor pertama Anda sekarang!</p>
+          </div>
+        ) : (
+          bookings.map((item, index) => (
+            <div 
+              key={item.id} 
+              className="bg-white border-2 border-[#1a1a1a]/10 rounded-3xl shadow-lg overflow-hidden hover:shadow-2xl hover:shadow-[#FF6B35]/10 transition-all animate-in fade-in slide-in-from-bottom-4 duration-700"
+              style={{ animationDelay: `${index * 100}ms` }}
+            >
+              <button 
+                onClick={() => setExpandedId(expandedId === item.id ? null : item.id)}
+                className="w-full p-6 flex flex-col md:flex-row justify-between items-start md:items-center gap-4 hover:bg-[#FAF9F6] transition text-left group"
+              >
+                <div className="flex gap-4 items-start md:items-center flex-1">
+                  <div className={`w-14 h-14 rounded-2xl flex items-center justify-center shadow-lg transition-all ${
+                    item.status === 'Disetujui' || item.status === 'Motor Terkirim' || item.status === 'Selesai'
+                      ? 'bg-gradient-to-br from-green-500 to-green-600 text-white group-hover:scale-110'
+                      : item.status === 'Ditolak'
+                      ? 'bg-gradient-to-br from-red-500 to-red-600 text-white group-hover:scale-110'
+                      : 'bg-gradient-to-br from-[#FF6B35] to-[#FF8F5F] text-white group-hover:scale-110'
+                  }`}>
+                    <Clock size={28} />
+                  </div>
+                  <div className="flex-1">
+                    <h3 className="font-black text-xl text-[#1a1a1a] tracking-tight">{item.motor_name}</h3>
+                    <p className="text-sm text-[#1a1a1a]/50 mt-1 font-medium flex items-center gap-2">
+                      <Calendar size={14} />
+                      {item.start_date} → {item.end_date}
+                    </p>
+                  </div>
+                </div>
+                
+                <div className={`px-5 py-2 rounded-full text-xs font-black border-2 uppercase tracking-wider shadow-sm ${
+                  item.status === 'Disetujui' 
+                    ? 'bg-green-50 text-green-700 border-green-200' 
+                    : item.status === 'Motor Terkirim'
+                    ? 'bg-blue-50 text-blue-700 border-blue-200'
+                    : item.status === 'Selesai'
+                    ? 'bg-purple-50 text-purple-700 border-purple-200'
+                    : item.status === 'Ditolak' 
+                    ? 'bg-red-50 text-red-700 border-red-200' 
+                    : 'bg-amber-50 text-amber-700 border-amber-200'
+                }`}>
+                  {item.status}
+                </div>
+              </button>
+
+              {/* Dropdown Detail */}
+              {expandedId === item.id && (
+                <div className="border-t bg-gray-50 p-6 space-y-6 animate-in slide-in-from-top-2 duration-200">
+                  {/* Status Badge */}
+                  <div className={`p-4 rounded-2xl border flex items-center gap-3 ${
+                     item.status === 'Disetujui' ? 'bg-green-50 border-green-100 text-green-700' : 
+                     item.status === 'Ditolak' ? 'bg-red-50 border-red-100 text-red-700' :
+                     'bg-blue-50 border-blue-100 text-blue-700'
+                  }`}>
+                    <Info size={20} />
+                    <p className="text-sm font-bold">Status: {item.status}</p>
+                  </div>
+
+                  {/* Motor Info */}
+                  <div className="space-y-3">
+                    <h4 className="text-xs font-bold text-slate-400 uppercase tracking-widest">Unit Motor</h4>
+                    <p className="font-bold text-lg text-slate-900">{item.motor_name}</p>
+                    <p className="text-[10px] text-slate-400 font-mono uppercase">ID: {item.id.split('-')[0]}</p>
+                  </div>
+
+                  {/* Schedule */}
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-6 pt-2">
+                    <div className="space-y-3 bg-white p-4 rounded-xl">
+                      <h4 className="text-xs font-bold text-slate-400 uppercase tracking-widest flex items-center gap-2">
+                        <Calendar size={14} /> Pengambilan
+                      </h4>
+                      <p className="text-sm font-semibold">{item.start_date}</p>
+                      <p className="text-xs text-slate-500 flex items-center gap-1"><Clock size={12}/> {item.start_time}</p>
+                    </div>
+                    <div className="space-y-3 bg-white p-4 rounded-xl">
+                      <h4 className="text-xs font-bold text-slate-400 uppercase tracking-widest flex items-center gap-2">
+                        <Calendar size={14} /> Pengembalian
+                      </h4>
+                      <p className="text-sm font-semibold">{item.end_date}</p>
+                      <p className="text-xs text-slate-500 flex items-center gap-1"><Clock size={12}/> {item.end_time}</p>
+                    </div>
+                  </div>
+
+                  {/* Delivery & Notes */}
+                  <div className="space-y-4 pt-2">
+                    <div className="flex justify-between items-center p-3 bg-white rounded-xl">
+                      <span className="text-xs font-bold text-slate-500 uppercase">Antar Jemput</span>
+                      <span className={`text-xs font-bold px-2 py-1 rounded-md ${item.is_delivery ? 'bg-blue-600 text-white' : 'bg-slate-200 text-slate-500'}`}>
+                        {item.is_delivery ? 'YA' : 'TIDAK'}
+                      </span>
+                    </div>
+                    
+                    {item.notes && (
+                      <div className="space-y-2">
+                        <h4 className="text-xs font-bold text-slate-400 uppercase tracking-widest">Catatan</h4>
+                        <p className="text-sm text-slate-600 bg-white p-3 rounded-xl italic">&quot;{item.notes}&quot;</p>
+                      </div>
+                    )}
+                  </div>
+
+                  {/* Rejection Reason & Appeal */}
+                  {item.status === 'Ditolak' && item.rejection_reason && (
+                    <div className="p-4 bg-red-50 rounded-xl border border-red-100 space-y-3">
+                      <p className="text-xs text-red-700 font-bold uppercase tracking-widest">Alasan Penolakan Owner:</p>
+                      <p className="text-sm italic text-red-600">&quot;{item.rejection_reason}&quot;</p>
+                      
+                      <button 
+                        onClick={() => {
+                          const appeal = prompt('Masukkan alasan banding Anda:');
+                          if(appeal) submitAppeal(item.id, appeal);
+                        }}
+                        className="text-xs bg-red-600 text-white px-4 py-2 rounded-lg font-bold hover:bg-red-700 transition"
+                      >
+                        Ajukan Banding
+                      </button>
+                    </div>
+                  )}
+
+                  {/* Payment Summary */}
+                  <div className="border-t border-slate-200 pt-6">
+                    <div className="flex justify-between items-center">
+                      <h4 className="font-bold text-slate-900 flex items-center gap-2">
+                        <CreditCard size={18} className="text-blue-600" /> Total Pembayaran
+                      </h4>
+                      <p className="text-2xl font-black text-blue-600">Rp {item.total_price.toLocaleString()}</p>
+                    </div>
+                  </div>
+                </div>
+              )}
+            </div>
+          ))
+        )}
+        </div>
+      </div>
+    </div>
+  );
+}
