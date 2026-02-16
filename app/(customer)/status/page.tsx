@@ -71,7 +71,7 @@ export default function StatusPage() {
 
   if (loading) return (
     <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-[#FAF9F6] to-white">
-      <Loader2 className="animate-spin text-[#FF6B35]" size={40} />
+      <Loader2 className="animate-spin text-[#2563EB]" size={40} />
     </div>
   );
 
@@ -80,8 +80,8 @@ export default function StatusPage() {
       <div className="max-w-5xl mx-auto px-4">
         {/* Header */}
         <div className="mb-12 space-y-4">
-          <div className="inline-flex items-center gap-2 bg-gradient-to-r from-[#FF6B35]/10 to-[#00D9FF]/10 border border-[#FF6B35]/20 px-4 py-2 rounded-full">
-            <Clock size={14} className="text-[#FF6B35]" />
+          <div className="inline-flex items-center gap-2 bg-gradient-to-r from-[#2563EB]/10 to-[#00D9FF]/10 border border-[#FF6B35]/20 px-4 py-2 rounded-full">
+            <Clock size={14} className="text-[#2563EB]" />
             <span className="text-xs font-bold tracking-wider uppercase text-[#1a1a1a]">Tracking</span>
           </div>
           <h1 className="text-5xl font-black text-[#1a1a1a] tracking-tight">Status Pemesanan</h1>
@@ -99,7 +99,7 @@ export default function StatusPage() {
           bookings.map((item, index) => (
             <div 
               key={item.id} 
-              className="bg-white border-2 border-[#1a1a1a]/10 rounded-3xl shadow-lg overflow-hidden hover:shadow-2xl hover:shadow-[#FF6B35]/10 transition-all animate-in fade-in slide-in-from-bottom-4 duration-700"
+              className="bg-white border-2 border-[#1a1a1a]/10 rounded-3xl shadow-lg overflow-hidden hover:shadow-2xl hover:shadow-[#2563EB]/10 transition-all animate-in fade-in slide-in-from-bottom-4 duration-700"
               style={{ animationDelay: `${index * 100}ms` }}
             >
               <button 
@@ -112,7 +112,7 @@ export default function StatusPage() {
                       ? 'bg-gradient-to-br from-green-500 to-green-600 text-white group-hover:scale-110'
                       : item.status === 'Ditolak'
                       ? 'bg-gradient-to-br from-red-500 to-red-600 text-white group-hover:scale-110'
-                      : 'bg-gradient-to-br from-[#FF6B35] to-[#FF8F5F] text-white group-hover:scale-110'
+                      : 'bg-gradient-to-br from-[#2563EB] to-[#3B82F6] text-white group-hover:scale-110'
                   }`}>
                     <Clock size={28} />
                   </div>
@@ -134,7 +134,7 @@ export default function StatusPage() {
                     ? 'bg-purple-50 text-purple-700 border-purple-200'
                     : item.status === 'Ditolak' 
                     ? 'bg-red-50 text-red-700 border-red-200' 
-                    : 'bg-amber-50 text-amber-700 border-amber-200'
+                    : 'bg-blue-50 text-blue-700 border-blue-200'
                 }`}>
                   {item.status}
                 </div>

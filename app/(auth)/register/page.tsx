@@ -56,7 +56,7 @@ export default function RegisterPage() {
           {/* Logo */}
           <Link href="/" className="inline-flex items-center gap-4 mb-12 group">
             <div className="relative w-16 h-16">
-              <div className="absolute inset-0 bg-[#FF6B35] rounded-2xl rotate-6 group-hover:rotate-12 transition-transform"></div>
+              <div className="absolute inset-0 bg-[#2563EB] rounded-2xl rotate-6 group-hover:rotate-12 transition-transform"></div>
               <div className="relative w-full h-full bg-white rounded-2xl flex items-center justify-center overflow-hidden shadow-xl">
                 <Image 
                   src="/images/logo.png" 
@@ -85,7 +85,7 @@ export default function RegisterPage() {
           {/* Benefits List */}
           <div className="space-y-6">
             <div className="flex items-start gap-4">
-              <div className="w-12 h-12 rounded-2xl bg-[#FF6B35] flex items-center justify-center shrink-0">
+              <div className="w-12 h-12 rounded-2xl bg-[#2563EB] flex items-center justify-center shrink-0">
                 <CheckCircle2 className="text-white" size={24} strokeWidth={2.5} />
               </div>
               <div>
@@ -141,7 +141,7 @@ export default function RegisterPage() {
                     placeholder="John Doe" 
                     value={fullName}
                     onChange={(e) => setFullName(e.target.value)}
-                    className="w-full pl-12 pr-4 py-4 bg-[#FAF9F6] border-2 border-[#1a1a1a]/10 rounded-2xl outline-none focus:border-[#FF6B35] focus:bg-[#FF6B35]/5 transition-all text-sm font-medium"
+                    className="w-full pl-12 pr-4 py-4 bg-[#FAF9F6] border-2 border-[#1a1a1a]/10 rounded-2xl outline-none focus:border-[#2563EB] focus:bg-[#2563EB]/5 transition-all text-sm font-medium"
                     required
                   />
                 </div>
@@ -157,7 +157,7 @@ export default function RegisterPage() {
                     placeholder="email@anda.com" 
                     value={email}
                     onChange={(e) => setEmail(e.target.value)}
-                    className="w-full pl-12 pr-4 py-4 bg-[#FAF9F6] border-2 border-[#1a1a1a]/10 rounded-2xl outline-none focus:border-[#FF6B35] focus:bg-[#FF6B35]/5 transition-all text-sm font-medium"
+                    className="w-full pl-12 pr-4 py-4 bg-[#FAF9F6] border-2 border-[#1a1a1a]/10 rounded-2xl outline-none focus:border-[#2563EB] focus:bg-[#2563EB]/5 transition-all text-sm font-medium"
                     required
                   />
                 </div>
@@ -173,7 +173,7 @@ export default function RegisterPage() {
                     placeholder="••••••••" 
                     value={password}
                     onChange={(e) => setPassword(e.target.value)}
-                    className="w-full pl-12 pr-4 py-4 bg-[#FAF9F6] border-2 border-[#1a1a1a]/10 rounded-2xl outline-none focus:border-[#FF6B35] focus:bg-[#FF6B35]/5 transition-all text-sm font-medium"
+                    className="w-full pl-12 pr-4 py-4 bg-[#FAF9F6] border-2 border-[#1a1a1a]/10 rounded-2xl outline-none focus:border-[#2563EB] focus:bg-[#2563EB]/5 transition-all text-sm font-medium"
                     required
                   />
                 </div>
@@ -202,7 +202,7 @@ export default function RegisterPage() {
             {/* Login Link */}
             <div className="mt-8 pt-6 border-t border-[#1a1a1a]/10 text-center text-sm text-[#1a1a1a]/60">
               Sudah punya akun?{' '}
-              <Link href="/login" className="text-[#FF6B35] font-bold hover:underline">
+              <Link href="/login" className="text-[#2563EB] font-bold hover:underline">
                 Masuk di sini
               </Link>
             </div>

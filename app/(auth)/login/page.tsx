@@ -45,7 +45,7 @@ export default function LoginPage() {
   return (
     <div className="min-h-screen flex flex-col lg:flex-row bg-white">
       {/* Left Side - Brand Section */}
-      <div className="lg:w-1/2 bg-[#FF6B35] flex items-center justify-center p-8 lg:p-16 relative overflow-hidden">
+      <div className="lg:w-1/2 bg-[#2563EB] flex items-center justify-center p-8 lg:p-16 relative overflow-hidden">
         {/* Pattern Overlay */}
         <div className="absolute inset-0 opacity-[0.05]" style={{ backgroundImage: `url("data:image/svg+xml,%3Csvg width='60' height='60' viewBox='0 0 60 60' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='none' fill-rule='evenodd'%3E%3Cg fill='%23000000' fill-opacity='1'%3E%3Cpath d='M36 34v-4h-2v4h-4v2h4v4h2v-4h4v-2h-4zm0-30V0h-2v4h-4v2h4v4h2V6h4V4h-4zM6 34v-4H4v4H0v2h4v4h2v-4h4v-2H6zM6 4V0H4v4H0v2h4v4h2V6h4V4H6z'/%3E%3C/g%3E%3C/g%3E%3C/svg%3E")` }}></div>
         
@@ -123,7 +123,7 @@ export default function LoginPage() {
                     placeholder="email@anda.com" 
                     value={email}
                     onChange={(e) => setEmail(e.target.value)}
-                    className="w-full pl-12 pr-4 py-4 bg-[#FAF9F6] border-2 border-[#1a1a1a]/10 rounded-2xl outline-none focus:border-[#FF6B35] focus:bg-[#FF6B35]/5 transition-all text-sm font-medium"
+                    className="w-full pl-12 pr-4 py-4 bg-[#FAF9F6] border-2 border-[#1a1a1a]/10 rounded-2xl outline-none focus:border-[#2563EB] focus:bg-[#2563EB]/5 transition-all text-sm font-medium"
                     required
                   />
                 </div>
@@ -139,7 +139,7 @@ export default function LoginPage() {
                     placeholder="••••••••" 
                     value={password}
                     onChange={(e) => setPassword(e.target.value)}
-                    className="w-full pl-12 pr-4 py-4 bg-[#FAF9F6] border-2 border-[#1a1a1a]/10 rounded-2xl outline-none focus:border-[#FF6B35] focus:bg-[#FF6B35]/5 transition-all text-sm font-medium"
+                    className="w-full pl-12 pr-4 py-4 bg-[#FAF9F6] border-2 border-[#1a1a1a]/10 rounded-2xl outline-none focus:border-[#2563EB] focus:bg-[#2563EB]/5 transition-all text-sm font-medium"
                     required
                   />
                 </div>
@@ -148,7 +148,7 @@ export default function LoginPage() {
               {/* Submit Button */}
               <button 
                 disabled={loading}
-                className="w-full bg-[#FF6B35] hover:bg-[#FF6B35]/90 text-white py-4 rounded-2xl font-black transition-all flex items-center justify-center gap-2 group mt-8 disabled:opacity-50 disabled:cursor-not-allowed shadow-lg hover:shadow-xl"
+                className="w-full bg-[#2563EB] hover:bg-[#2563EB]/90 text-white py-4 rounded-2xl font-black transition-all flex items-center justify-center gap-2 group mt-8 disabled:opacity-50 disabled:cursor-not-allowed shadow-lg hover:shadow-xl"
               >
                 {loading ? 'Masuk...' : 'Masuk Sekarang'}
                 {!loading && <ArrowRight size={20} className="group-hover:translate-x-1 transition-transform" />}
@@ -158,7 +158,7 @@ export default function LoginPage() {
             {/* Register Link */}
             <div className="mt-8 pt-6 border-t border-[#1a1a1a]/10 text-center text-sm text-[#1a1a1a]/60">
               Belum punya akun?{' '}
-              <Link href="/register" className="text-[#FF6B35] font-bold hover:underline">
+              <Link href="/register" className="text-[#2563EB] font-bold hover:underline">
                 Daftar Sekarang
               </Link>
             </div>

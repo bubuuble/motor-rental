@@ -3,7 +3,7 @@ import { ArrowLeft, CheckCircle2, AlertCircle, MapPin, CreditCard, FileText, Shi
 
 export default function SyaratKetentuanPage() {
   return (
-    <div className="min-h-screen bg-gradient-to-br from-[#FAF9F6] via-white to-[#FFE8DD]/20">
+    <div className="min-h-screen bg-gradient-to-br from-[#FAF9F6] via-white to-[#DBEAFE]/20">
       {/* Header */}
       <div className="bg-gradient-to-r from-[#1a1a1a] to-[#2a2a2a] text-white py-12 px-4">
         <div className="max-w-4xl mx-auto">
@@ -26,8 +26,8 @@ export default function SyaratKetentuanPage() {
       {/* Main Content */}
       <div className="max-w-4xl mx-auto px-4 py-12">
         {/* Important Notice */}
-        <div className="bg-gradient-to-br from-[#FF6B35]/10 to-[#FF6B35]/5 border-2 border-[#FF6B35] rounded-3xl p-6 mb-8 flex gap-4">
-          <AlertCircle className="text-[#FF6B35] shrink-0 mt-1" size={24} />
+        <div className="bg-gradient-to-br from-[#2563EB]/10 to-[#2563EB]/5 border-2 border-[#2563EB] rounded-3xl p-6 mb-8 flex gap-4">
+          <AlertCircle className="text-[#2563EB] shrink-0 mt-1" size={24} />
           <div>
             <h3 className="font-black text-[#1a1a1a] text-lg mb-2">Penting untuk Dibaca</h3>
             <p className="text-[#1a1a1a]/70 font-medium leading-relaxed">
@@ -41,14 +41,14 @@ export default function SyaratKetentuanPage() {
         {/* Requirements List */}
         <div className="space-y-6">
           {/* Requirement 1 */}
-          <div className="bg-white rounded-3xl p-6 shadow-lg border-2 border-[#1a1a1a]/5 hover:border-[#FF6B35]/30 transition-all">
+          <div className="bg-white rounded-3xl p-6 shadow-lg border-2 border-[#1a1a1a]/5 hover:border-[#2563EB]/30 transition-all">
             <div className="flex gap-4">
-              <div className="w-12 h-12 bg-gradient-to-br from-[#FF6B35] to-[#FF8F5F] rounded-2xl flex items-center justify-center text-white font-black text-xl shrink-0 shadow-lg">
+              <div className="w-12 h-12 bg-gradient-to-br from-[#2563EB] to-[#3B82F6] rounded-2xl flex items-center justify-center text-white font-black text-xl shrink-0 shadow-lg">
                 1
               </div>
               <div className="flex-1">
                 <div className="flex items-center gap-2 mb-3">
-                  <MapPin className="text-[#FF6B35]" size={20} />
+                  <MapPin className="text-[#2563EB]" size={20} />
                   <h3 className="font-black text-[#1a1a1a] text-lg">Domisili di Depok</h3>
                 </div>
                 <p className="text-[#1a1a1a]/70 font-medium leading-relaxed">
@@ -60,14 +60,14 @@ export default function SyaratKetentuanPage() {
           </div>
 
           {/* Requirement 2 */}
-          <div className="bg-white rounded-3xl p-6 shadow-lg border-2 border-[#1a1a1a]/5 hover:border-[#FF6B35]/30 transition-all">
+          <div className="bg-white rounded-3xl p-6 shadow-lg border-2 border-[#1a1a1a]/5 hover:border-[#2563EB]/30 transition-all">
             <div className="flex gap-4">
-              <div className="w-12 h-12 bg-gradient-to-br from-[#FF6B35] to-[#FF8F5F] rounded-2xl flex items-center justify-center text-white font-black text-xl shrink-0 shadow-lg">
+              <div className="w-12 h-12 bg-gradient-to-br from-[#2563EB] to-[#3B82F6] rounded-2xl flex items-center justify-center text-white font-black text-xl shrink-0 shadow-lg">
                 2
               </div>
               <div className="flex-1">
                 <div className="flex items-center gap-2 mb-3">
-                  <CreditCard className="text-[#FF6B35]" size={20} />
+                  <CreditCard className="text-[#2563EB]" size={20} />
                   <h3 className="font-black text-[#1a1a1a] text-lg">Sistem Bayar Pakai</h3>
                 </div>
                 <p className="text-[#1a1a1a]/70 font-medium leading-relaxed mb-2">
@@ -83,14 +83,14 @@ export default function SyaratKetentuanPage() {
           </div>
 
           {/* Requirement 3 */}
-          <div className="bg-white rounded-3xl p-6 shadow-lg border-2 border-[#1a1a1a]/5 hover:border-[#FF6B35]/30 transition-all">
+          <div className="bg-white rounded-3xl p-6 shadow-lg border-2 border-[#1a1a1a]/5 hover:border-[#2563EB]/30 transition-all">
             <div className="flex gap-4">
-              <div className="w-12 h-12 bg-gradient-to-br from-[#FF6B35] to-[#FF8F5F] rounded-2xl flex items-center justify-center text-white font-black text-xl shrink-0 shadow-lg">
+              <div className="w-12 h-12 bg-gradient-to-br from-[#2563EB] to-[#3B82F6] rounded-2xl flex items-center justify-center text-white font-black text-xl shrink-0 shadow-lg">
                 3
               </div>
               <div className="flex-1">
                 <div className="flex items-center gap-2 mb-3">
-                  <FileText className="text-[#FF6B35]" size={20} />
+                  <FileText className="text-[#2563EB]" size={20} />
                   <h3 className="font-black text-[#1a1a1a] text-lg">Dokumen Identitas Asli</h3>
                 </div>
                 <p className="text-[#1a1a1a]/70 font-medium leading-relaxed mb-4">
@@ -110,7 +110,7 @@ export default function SyaratKetentuanPage() {
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-2 text-sm">
                       {['KK (Kartu Keluarga)', 'SIM C', 'PASPORT', 'ID CARD', 'KTM (Kartu Mahasiswa)', 'Dokumen lain penyewa/penjamin'].map((doc, idx) => (
                         <div key={idx} className="flex items-center gap-2">
-                          <div className="w-1.5 h-1.5 bg-[#FF6B35] rounded-full"></div>
+                          <div className="w-1.5 h-1.5 bg-[#2563EB] rounded-full"></div>
                           <span className="text-[#1a1a1a]/80 font-medium">{doc}</span>
                         </div>
                       ))}
@@ -122,14 +122,14 @@ export default function SyaratKetentuanPage() {
           </div>
 
           {/* Requirement 4 */}
-          <div className="bg-white rounded-3xl p-6 shadow-lg border-2 border-[#1a1a1a]/5 hover:border-[#FF6B35]/30 transition-all">
+          <div className="bg-white rounded-3xl p-6 shadow-lg border-2 border-[#1a1a1a]/5 hover:border-[#2563EB]/30 transition-all">
             <div className="flex gap-4">
-              <div className="w-12 h-12 bg-gradient-to-br from-[#FF6B35] to-[#FF8F5F] rounded-2xl flex items-center justify-center text-white font-black text-xl shrink-0 shadow-lg">
+              <div className="w-12 h-12 bg-gradient-to-br from-[#2563EB] to-[#3B82F6] rounded-2xl flex items-center justify-center text-white font-black text-xl shrink-0 shadow-lg">
                 4
               </div>
               <div className="flex-1">
                 <div className="flex items-center gap-2 mb-3">
-                  <Shield className="text-[#FF6B35]" size={20} />
+                  <Shield className="text-[#2563EB]" size={20} />
                   <h3 className="font-black text-[#1a1a1a] text-lg">SIM C Aktif</h3>
                 </div>
                 <p className="text-[#1a1a1a]/70 font-medium leading-relaxed">
@@ -140,14 +140,14 @@ export default function SyaratKetentuanPage() {
           </div>
 
           {/* Requirement 5 */}
-          <div className="bg-white rounded-3xl p-6 shadow-lg border-2 border-[#1a1a1a]/5 hover:border-[#FF6B35]/30 transition-all">
+          <div className="bg-white rounded-3xl p-6 shadow-lg border-2 border-[#1a1a1a]/5 hover:border-[#2563EB]/30 transition-all">
             <div className="flex gap-4">
-              <div className="w-12 h-12 bg-gradient-to-br from-[#FF6B35] to-[#FF8F5F] rounded-2xl flex items-center justify-center text-white font-black text-xl shrink-0 shadow-lg">
+              <div className="w-12 h-12 bg-gradient-to-br from-[#2563EB] to-[#3B82F6] rounded-2xl flex items-center justify-center text-white font-black text-xl shrink-0 shadow-lg">
                 5
               </div>
               <div className="flex-1">
                 <div className="flex items-center gap-2 mb-3">
-                  <CheckCircle2 className="text-[#FF6B35]" size={20} />
+                  <CheckCircle2 className="text-[#2563EB]" size={20} />
                   <h3 className="font-black text-[#1a1a1a] text-lg">Survei & Verifikasi Data</h3>
                 </div>
                 <p className="text-[#1a1a1a]/70 font-medium leading-relaxed">
@@ -159,18 +159,18 @@ export default function SyaratKetentuanPage() {
           </div>
 
           {/* Requirement 6 */}
-          <div className="bg-white rounded-3xl p-6 shadow-lg border-2 border-[#1a1a1a]/5 hover:border-[#FF6B35]/30 transition-all">
+          <div className="bg-white rounded-3xl p-6 shadow-lg border-2 border-[#1a1a1a]/5 hover:border-[#2563EB]/30 transition-all">
             <div className="flex gap-4">
-              <div className="w-12 h-12 bg-gradient-to-br from-[#FF6B35] to-[#FF8F5F] rounded-2xl flex items-center justify-center text-white font-black text-xl shrink-0 shadow-lg">
+              <div className="w-12 h-12 bg-gradient-to-br from-[#2563EB] to-[#3B82F6] rounded-2xl flex items-center justify-center text-white font-black text-xl shrink-0 shadow-lg">
                 6
               </div>
               <div className="flex-1">
                 <div className="flex items-center gap-2 mb-3">
-                  <CreditCard className="text-[#FF6B35]" size={20} />
+                  <CreditCard className="text-[#2563EB]" size={20} />
                   <h3 className="font-black text-[#1a1a1a] text-lg">Uang Deposit</h3>
                 </div>
                 <p className="text-[#1a1a1a]/70 font-medium leading-relaxed mb-3">
-                  Bersedia menyerahkan uang deposit senilai <span className="font-black text-[#FF6B35] text-lg">Rp 100.000,-</span>
+                  Bersedia menyerahkan uang deposit senilai <span className="font-black text-[#2563EB] text-lg">Rp 100.000,-</span>
                 </p>
                 <div className="bg-green-50 border-l-4 border-green-500 p-3 rounded-xl">
                   <p className="text-sm font-bold text-green-900 mb-1">Pengembalian Deposit:</p>
@@ -185,9 +185,9 @@ export default function SyaratKetentuanPage() {
         </div>
 
         {/* Important Notes */}
-        <div className="mt-8 bg-gradient-to-br from-amber-50 to-orange-50 rounded-3xl p-6 border-2 border-amber-200">
+        <div className="mt-8 bg-gradient-to-br from-blue-50 to-indigo-50 rounded-3xl p-6 border-2 border-blue-200">
           <div className="flex gap-3 mb-4">
-            <AlertCircle className="text-amber-600 shrink-0" size={24} />
+            <AlertCircle className="text-blue-600 shrink-0" size={24} />
             <h3 className="font-black text-[#1a1a1a] text-xl">Catatan Penting</h3>
           </div>
           <div className="space-y-3 pl-9">
@@ -211,7 +211,7 @@ export default function SyaratKetentuanPage() {
         <div className="mt-12 text-center">
           <Link 
             href="/"
-            className="inline-flex items-center gap-2 bg-gradient-to-r from-[#FF6B35] to-[#FF8F5F] text-white font-black px-8 py-4 rounded-2xl hover:shadow-2xl hover:shadow-[#FF6B35]/30 transition-all hover:scale-105"
+            className="inline-flex items-center gap-2 bg-gradient-to-r from-[#2563EB] to-[#3B82F6] text-white font-black px-8 py-4 rounded-2xl hover:shadow-2xl hover:shadow-[#2563EB]/30 transition-all hover:scale-105"
           >
             <CheckCircle2 size={20} />
             <span className="uppercase tracking-wide">Saya Mengerti, Lanjutkan Sewa</span>
