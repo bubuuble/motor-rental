@@ -5,14 +5,14 @@ import MotorCard from "@/components/MotorCard";
 import BookingModal from "@/components/BookingModal";
 import { MOTORS_DATA, Motor } from "@/app/constants/motors";
 import { createClient } from "@/utils/supabase/client";
-import { Bike, Search, Filter, ChevronDown } from "lucide-react";
+import { Bike, Filter, ChevronDown } from "lucide-react";
 
 export default function MotorsPage() {
   const [selectedMotor, setSelectedMotor] = useState<Motor | null>(null);
   const [rentedMotorIds, setRentedMotorIds] = useState<string[]>([]);
-  const [searchQuery, setSearchQuery] = useState("");
-  const [selectedBrand, setSelectedBrand] = useState<string>("all");
-  const [selectedSort, setSelectedSort] = useState<string>("price-asc");
+  const [selectedBrand, setSelectedBrand] = useState("all");
+  const [selectedSort, setSelectedSort] = useState("price-asc");
+
   const supabase = useMemo(() => createClient(), []);
 
   useEffect(() => {
@@ -21,10 +21,12 @@ export default function MotorsPage() {
         .from("bookings")
         .select("motor_id")
         .in("status", ["Disetujui", "Motor Terkirim"]);
+
       if (data) {
-        setRentedMotorIds(data.map((d) => d.motor_id));
+        setRentedMotorIds(data.map((d) => String(d.motor_id)));
       }
     };
+
     void fetchRented();
   }, [supabase]);
 
@@ -37,15 +39,6 @@ export default function MotorsPage() {
   // Filter and sort motors
   const filteredMotors = useMemo(() => {
     let result = [...MOTORS_DATA];
-
-    // Filter by search
-    if (searchQuery) {
-      result = result.filter(
-        (motor) =>
-          motor.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
-          motor.description.toLowerCase().includes(searchQuery.toLowerCase()),
-      );
-    }
 
     // Filter by brand
     if (selectedBrand !== "all") {
@@ -71,144 +64,132 @@ export default function MotorsPage() {
     }
 
     return result;
-  }, [searchQuery, selectedBrand, selectedSort]);
+  }, [selectedBrand, selectedSort]);
 
   return (
-    <main className="min-h-screen bg-gradient-to-b from-white via-[#FAF9F6] to-white">
+    <div className="min-h-screen bg-[#FAF9F6]">
       {/* Header Section */}
-      <section className="relative pt-12 pb-8 overflow-hidden">
+      <div className="relative bg-gradient-to-br from-[#2563EB] via-[#1d4ed8] to-[#1e40af] text-white overflow-hidden">
         {/* Background Decoration */}
-        <div className="absolute top-0 left-1/2 -translate-x-1/2 w-full h-full max-w-7xl">
-          <div className="absolute top-10 right-20 w-72 h-72 bg-gradient-to-br from-[#2563EB]/10 to-transparent rounded-full blur-3xl"></div>
-          <div className="absolute bottom-0 left-20 w-96 h-96 bg-gradient-to-tl from-[#DC2626]/10 to-transparent rounded-full blur-3xl"></div>
+        <div className="absolute inset-0 opacity-10">
+          <div className="absolute top-0 left-0 w-96 h-96 bg-white rounded-full blur-3xl -translate-x-1/2 -translate-y-1/2" />
+          <div className="absolute bottom-0 right-0 w-96 h-96 bg-white rounded-full blur-3xl translate-x-1/2 translate-y-1/2" />
         </div>
 
-        <div className="max-w-7xl mx-auto px-6 relative z-10">
+        <div className="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-16">
           {/* Breadcrumb */}
-          <div className="flex items-center gap-2 text-sm text-[#1a1a1a]/50 mb-6">
-            <span>Beranda</span>
-            <span>/</span>
-            <span className="text-[#2563EB] font-bold">Daftar Motor</span>
+          <div className="text-sm text-white/80 mb-6 font-medium">
+            Beranda / Daftar Motor
           </div>
 
           {/* Title */}
-          <div className="text-center mb-12">
-            <div className="inline-flex items-center gap-2 bg-gradient-to-r from-[#2563EB]/10 to-[#DC2626]/10 border border-[#2563EB]/20 px-4 py-2 rounded-full mb-6">
-              <Bike className="w-4 h-4 text-[#2563EB]" />
-              <span className="text-xs font-bold tracking-wider uppercase text-[#1a1a1a]">
-                Katalog Lengkap
-              </span>
-            </div>
-            <h1 className="text-4xl md:text-5xl lg:text-6xl font-black text-[#1a1a1a] tracking-tight mb-4">
-              Pilihan{" "}
-              <span className="bg-gradient-to-r from-[#2563EB] to-[#3B82F6] bg-clip-text text-transparent">
-                Motor
-              </span>{" "}
-              Terbaik
+          <div className="max-w-3xl">
+            <h1 className="text-5xl md:text-6xl font-black mb-4 leading-tight">
+              Katalog Lengkap
             </h1>
-            <p className="text-lg text-[#1a1a1a]/60 font-medium max-w-2xl mx-auto">
+            <p className="text-2xl md:text-3xl font-bold mb-6">
+              Pilihan{" "}
+              <span className="text-yellow-300">Motor</span>{" "}
+              Terbaik
+            </p>
+            <p className="text-lg text-white/90 leading-relaxed">
               Temukan motor yang sesuai dengan kebutuhan Anda. Semua unit
               terawat dengan performa prima dan harga bersaing.
             </p>
           </div>
+        </div>
+      </div>
 
-          {/* Filters */}
-          <div className="bg-white rounded-3xl shadow-xl shadow-[#1a1a1a]/5 border border-[#1a1a1a]/5 p-6 mb-8">
-            <div className="flex flex-col md:flex-row gap-4">
-              {/* Search */}
-              <div className="flex-1 relative">
-                <Search className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-[#1a1a1a]/30" />
-                <input
-                  type="text"
-                  placeholder="Cari motor..."
-                  value={searchQuery}
-                  onChange={(e) => setSearchQuery(e.target.value)}
-                  className="w-full pl-12 pr-4 py-3.5 bg-[#FAF9F6] border border-[#1a1a1a]/10 rounded-2xl text-sm font-medium text-[#1a1a1a] placeholder:text-[#1a1a1a]/40 focus:outline-none focus:border-[#2563EB]/30 focus:ring-2 focus:ring-[#2563EB]/10 transition-all"
-                />
-              </div>
-
-              {/* Brand Filter */}
-              <div className="relative md:w-48">
-                <Filter className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-[#1a1a1a]/30" />
-                <select
-                  value={selectedBrand}
-                  onChange={(e) => setSelectedBrand(e.target.value)}
-                  className="w-full pl-11 pr-10 py-3.5 bg-[#FAF9F6] border border-[#1a1a1a]/10 rounded-2xl text-sm font-medium text-[#1a1a1a] appearance-none focus:outline-none focus:border-[#2563EB]/30 focus:ring-2 focus:ring-[#2563EB]/10 transition-all cursor-pointer"
-                >
-                  <option value="all">Semua Merek</option>
-                  {brands
-                    .filter((b) => b !== "all")
-                    .map((brand) => (
-                      <option key={brand} value={brand}>
-                        {brand}
-                      </option>
-                    ))}
-                </select>
-                <ChevronDown className="absolute right-4 top-1/2 -translate-y-1/2 w-4 h-4 text-[#1a1a1a]/40 pointer-events-none" />
-              </div>
-
-              {/* Sort */}
-              <div className="relative md:w-48">
-                <select
-                  value={selectedSort}
-                  onChange={(e) => setSelectedSort(e.target.value)}
-                  className="w-full pl-4 pr-10 py-3.5 bg-[#FAF9F6] border border-[#1a1a1a]/10 rounded-2xl text-sm font-medium text-[#1a1a1a] appearance-none focus:outline-none focus:border-[#2563EB]/30 focus:ring-2 focus:ring-[#2563EB]/10 transition-all cursor-pointer"
-                >
-                  <option value="price-asc">Harga: Rendah - Tinggi</option>
-                  <option value="price-desc">Harga: Tinggi - Rendah</option>
-                  <option value="name-asc">Nama: A - Z</option>
-                  <option value="year-desc">Tahun: Terbaru</option>
-                </select>
-                <ChevronDown className="absolute right-4 top-1/2 -translate-y-1/2 w-4 h-4 text-[#1a1a1a]/40 pointer-events-none" />
-              </div>
+      {/* Filters */}
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 -mt-8 mb-12">
+        <div className="bg-white rounded-3xl shadow-xl shadow-black/5 p-6">
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            {/* Brand Filter */}
+            <div className="relative">
+              <Filter
+                className="absolute left-4 top-1/2 -translate-y-1/2 text-[#1a1a1a]/40"
+                size={20}
+              />
+              <select
+                value={selectedBrand}
+                onChange={(e) => setSelectedBrand(e.target.value)}
+                className="w-full pl-11 pr-10 py-3.5 bg-[#FAF9F6] border border-[#1a1a1a]/10 rounded-2xl text-sm font-medium text-[#1a1a1a] appearance-none focus:outline-none focus:border-[#2563EB]/30 focus:ring-2 focus:ring-[#2563EB]/10 transition-all cursor-pointer"
+              >
+                <option value="all">Semua Merek</option>
+                {brands
+                  .filter((b) => b !== "all")
+                  .map((brand) => (
+                    <option key={brand} value={brand}>
+                      {brand}
+                    </option>
+                  ))}
+              </select>
+              <ChevronDown
+                className="absolute right-4 top-1/2 -translate-y-1/2 text-[#1a1a1a]/40 pointer-events-none"
+                size={20}
+              />
             </div>
 
-            {/* Results Count */}
-            <div className="mt-4 pt-4 border-t border-[#1a1a1a]/5">
-              <p className="text-sm text-[#1a1a1a]/50 font-medium">
-                Menampilkan{" "}
-                <span className="text-[#2563EB] font-bold">
-                  {filteredMotors.length}
-                </span>{" "}
-                motor
-              </p>
+            {/* Sort */}
+            <div className="relative">
+              <select
+                value={selectedSort}
+                onChange={(e) => setSelectedSort(e.target.value)}
+                className="w-full pl-4 pr-10 py-3.5 bg-[#FAF9F6] border border-[#1a1a1a]/10 rounded-2xl text-sm font-medium text-[#1a1a1a] appearance-none focus:outline-none focus:border-[#2563EB]/30 focus:ring-2 focus:ring-[#2563EB]/10 transition-all cursor-pointer"
+              >
+                <option value="price-asc">Harga: Rendah - Tinggi</option>
+                <option value="price-desc">Harga: Tinggi - Rendah</option>
+                <option value="name-asc">Nama: A - Z</option>
+                <option value="year-desc">Tahun: Terbaru</option>
+              </select>
+              <ChevronDown
+                className="absolute right-4 top-1/2 -translate-y-1/2 text-[#1a1a1a]/40 pointer-events-none"
+                size={20}
+              />
             </div>
           </div>
+
+          {/* Results Count */}
+          <div className="mt-4 pt-4 border-t border-[#1a1a1a]/5">
+            <p className="text-sm text-[#1a1a1a]/60 font-medium">
+              Menampilkan{" "}
+              <span className="text-[#2563EB] font-bold">
+                {filteredMotors.length}
+              </span>{" "}
+              motor
+            </p>
+          </div>
         </div>
-      </section>
+      </div>
 
       {/* Motors Grid */}
-      <section className="max-w-7xl mx-auto px-6 pb-24">
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pb-16">
         {filteredMotors.length > 0 ? (
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
             {filteredMotors.map((motor, index) => (
               <div
                 key={motor.id}
-                className="animate-in fade-in slide-in-from-bottom-4 duration-700"
-                style={{ animationDelay: `${index * 50}ms` }}
+                className="animate-fade-in"
+                style={{ animationDelay: `${index * 0.05}s` }}
               >
                 <MotorCard
                   motor={motor}
-                  isRented={rentedMotorIds.includes(motor.id)}
+                  isRented={rentedMotorIds.includes(String(motor.id))}
                   onDetail={() => setSelectedMotor(motor)}
                 />
               </div>
             ))}
           </div>
         ) : (
-          <div className="text-center py-20">
-            <div className="inline-flex items-center justify-center w-20 h-20 bg-[#FAF9F6] rounded-full mb-6">
-              <Search className="w-8 h-8 text-[#1a1a1a]/30" />
-            </div>
+          <div className="text-center py-16">
+            <Bike className="w-16 h-16 text-[#1a1a1a]/20 mx-auto mb-4" />
             <h3 className="text-xl font-bold text-[#1a1a1a] mb-2">
               Tidak ada motor ditemukan
             </h3>
-            <p className="text-[#1a1a1a]/50">
-              Coba ubah kata kunci pencarian atau filter Anda
-            </p>
+            <p className="text-[#1a1a1a]/60">Coba ubah filter Anda</p>
           </div>
         )}
-      </section>
+      </div>
 
       {selectedMotor && (
         <BookingModal
@@ -216,6 +197,6 @@ export default function MotorsPage() {
           onClose={() => setSelectedMotor(null)}
         />
       )}
-    </main>
+    </div>
   );
 }
