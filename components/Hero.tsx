@@ -1,28 +1,14 @@
 "use client";
 
 import Image from "next/image";
-import { ChevronRight, Zap } from "lucide-react";
+import { BadgeDollarSign, ChevronRight, Zap } from "lucide-react";
 
 export default function Hero() {
   return (
-    <section className="relative min-h-[90vh] overflow-hidden bg-gradient-to-br from-[#FAF9F6] via-[#FAF9F6] to-[#DBEAFE]">
-      {/* Dynamic Background Pattern */}
-      <div
-        className="absolute inset-0 opacity-[0.015]"
-        style={{
-          backgroundImage: `url("data:image/svg+xml,%3Csvg width='60' height='60' viewBox='0 0 60 60' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='none' fill-rule='evenodd'%3E%3Cg fill='%23000000' fill-opacity='1'%3E%3Cpath d='M36 34v-4h-2v4h-4v2h4v4h2v-4h4v-2h-4zm0-30V0h-2v4h-4v2h4v4h2V6h4V4h-4zM6 34v-4H4v4H0v2h4v4h2v-4h4v-2H6zM6 4V0H4v4H0v2h4v4h2V6h4V4H6z'/%3E%3C/g%3E%3C/g%3E%3C/svg%3E")`,
-        }}
-      ></div>
+    <section className="relative min-h-[72vh] lg:min-h-[90vh] overflow-hidden bg-white">
 
-      {/* Diagonal Speed Lines */}
-      <div className="absolute top-0 right-0 w-full h-full opacity-5">
-        <div className="absolute top-1/4 -right-20 w-[600px] h-1 bg-gradient-to-r from-transparent via-[#2563EB] to-transparent rotate-12 animate-pulse"></div>
-        <div className="absolute top-1/3 -right-32 w-[500px] h-0.5 bg-gradient-to-r from-transparent via-[#DC2626] to-transparent rotate-12 animation-delay-300"></div>
-        <div className="absolute top-1/2 -right-24 w-[550px] h-1 bg-gradient-to-r from-transparent via-[#2563EB] to-transparent rotate-12 animation-delay-700"></div>
-      </div>
-
-      <div className="max-w-7xl mx-auto px-6 pt-20 pb-16 relative z-10">
-        <div className="grid lg:grid-cols-2 gap-16 items-center">
+      <div className="max-w-7xl mx-auto px-6 pt-14 sm:pt-16 lg:pt-20 pb-8 sm:pb-12 lg:pb-16 relative z-10">
+        <div className="grid lg:grid-cols-2 gap-10 lg:gap-16 items-center lg:items-start">
           {/* Content */}
           <div className="space-y-8 animate-in slide-in-from-left duration-700">
             {/* Badge */}
@@ -35,15 +21,44 @@ export default function Hero() {
 
             {/* Heading */}
             <div className="space-y-4">
-              <h1 className="text-7xl md:text-8xl font-black leading-[0.9] tracking-tight text-[#1a1a1a]">
-                Sewa
-                <span className="block mt-2 bg-gradient-to-r from-[#2563EB] to-[#3B82F6] bg-clip-text text-transparent">
-                  Motor
-                </span>
-                <span className="block text-5xl md:text-6xl font-bold tracking-normal mt-3">
-                  Tanpa Ribet
-                </span>
-              </h1>
+              <div className="relative pb-16 sm:pb-20 lg:pb-0 lg:static">
+                <div className="absolute -right-2 top-1/2 -translate-y-1/2 w-[72%] max-w-[270px] opacity-45 pointer-events-none lg:hidden">
+                  <Image
+                    src="/images/banner baru.png"
+                    alt="Motor"
+                    width={700}
+                    height={560}
+                    className="w-full h-auto"
+                    priority
+                  />
+                </div>
+
+                <h1 className="relative z-10 max-w-[68%] text-6xl sm:text-7xl md:text-8xl font-black leading-[0.9] tracking-tight text-[#1a1a1a] lg:max-w-none">
+                  Sewa
+                  <span className="block mt-2 bg-gradient-to-r from-[#2563EB] to-[#3B82F6] bg-clip-text text-transparent">
+                    Motormu
+                  </span>
+                  <span className="block text-4xl sm:text-5xl md:text-6xl font-bold tracking-normal mt-3">
+                    Sekarang!
+                  </span>
+                </h1>
+
+                <div className="lg:hidden absolute right-0 bottom-0 z-20 bg-white/95 backdrop-blur-sm px-3 py-2.5 rounded-2xl shadow-lg border border-[#1a1a1a]/10">
+                  <div className="flex items-center gap-2.5">
+                    <div className="w-8 h-8 rounded-full bg-gradient-to-br from-[#2563EB] to-[#3B82F6] flex items-center justify-center">
+                      <BadgeDollarSign className="w-4 h-4 text-white" />
+                    </div>
+                    <div>
+                      <div className="text-[9px] font-bold text-[#1a1a1a]/60 uppercase tracking-wider leading-none">
+                        Biaya sewa mulai dari
+                      </div>
+                      <div className="text-base font-black text-[#1a1a1a] leading-tight mt-0.5">
+                        Rp 70K/hari
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
 
               <div className="h-1 w-24 bg-gradient-to-r from-[#2563EB] to-transparent rounded-full"></div>
             </div>
@@ -52,7 +67,7 @@ export default function Hero() {
             <p className="text-lg leading-relaxed text-[#1a1a1a]/70 max-w-md font-medium">
               Proses cepat, verifikasi aman, motor siap pakai.
               <span className="block mt-2 text-[#2563EB] font-bold">
-                Booking sekarang, gas besok.
+                Solusi mudah transportasi anda!
               </span>
             </p>
 
@@ -102,33 +117,30 @@ export default function Hero() {
           </div>
 
           {/* Image */}
-          <div className="relative animate-in slide-in-from-right duration-700 animation-delay-300">
-            <div className="absolute -top-8 -right-8 w-72 h-72 bg-gradient-to-br from-[#2563EB]/20 to-[#DC2626]/20 rounded-full blur-3xl"></div>
-            <div className="absolute -bottom-8 left-8 w-64 h-64 bg-gradient-to-tr from-[#DC2626]/10 to-transparent rounded-full blur-3xl"></div>
-
-            <div className="relative transform hover:scale-105 transition-transform duration-500">
+          <div className="hidden lg:block relative animate-in slide-in-from-right duration-700 animation-delay-300 lg:self-start">
+            <div className="relative transform hover:scale-105 transition-transform duration-500 lg:-mt-2">
               <Image
-                src="/images/banner3.png"
+                src="/images/banner baru.png"
                 alt="Motor"
-                width={700}
-                height={600}
-                className="w-full h-auto drop-shadow-2xl relative z-10"
+                width={1000}
+                height={800}
+                className="w-full h-auto max-w-[620px] ml-auto relative z-10"
                 priority
               />
             </div>
 
             {/* Floating Card */}
-            <div className="absolute bottom-12 -left-4 bg-white/90 backdrop-blur-xl p-6 rounded-3xl shadow-2xl border border-[#1a1a1a]/5 animate-in zoom-in duration-700 animation-delay-1000 hover:scale-105 transition-transform">
+            <div className="absolute bottom-12 -left-4 bg-white p-6 rounded-3xl shadow-xl border border-[#1a1a1a]/5 animate-in zoom-in duration-700 animation-delay-1000 hover:scale-105 transition-transform">
               <div className="flex items-center gap-4">
                 <div className="w-12 h-12 rounded-full bg-gradient-to-br from-[#2563EB] to-[#3B82F6] flex items-center justify-center">
-                  <Zap className="w-6 h-6 text-white" fill="white" />
+                  <BadgeDollarSign className="w-6 h-6 text-white" />
                 </div>
                 <div>
                   <div className="text-xs font-bold text-[#1a1a1a]/60 uppercase tracking-wider">
-                    Mulai dari
+                    Biaya sewa mulai dari
                   </div>
                   <div className="text-2xl font-black text-[#1a1a1a]">
-                    Rp 50K/hari
+                    Rp 70K/hari
                   </div>
                 </div>
               </div>

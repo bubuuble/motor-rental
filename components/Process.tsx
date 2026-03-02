@@ -51,7 +51,7 @@ export default function AlurSewa() {
   return (
     <section
       id="alur"
-      className="relative py-24 overflow-hidden bg-gradient-to-b from-white via-[#FAF9F6] to-white"
+      className="relative py-14 sm:py-20 lg:py-24 overflow-hidden bg-gradient-to-b from-white via-[#FAF9F6] to-white"
     >
       {/* Background Pattern */}
       <div
@@ -67,21 +67,15 @@ export default function AlurSewa() {
 
       <div className="max-w-6xl mx-auto px-6 relative z-10">
         {/* Header */}
-        <div className="text-center mb-20 space-y-4">
-          <div className="inline-flex items-center gap-2 bg-gradient-to-r from-[#2563EB]/10 to-[#DC2626]/10 border border-[#2563EB]/20 px-4 py-2 rounded-full">
-            <div className="w-1.5 h-1.5 rounded-full bg-[#2563EB] animate-pulse"></div>
-            <span className="text-xs font-bold tracking-wider uppercase text-[#1a1a1a]">
-              Cara Sewa
-            </span>
-          </div>
-          <h2 className="text-5xl md:text-6xl font-black text-[#1a1a1a] tracking-tight">
-            Alur{" "}
+        <div className="text-left mb-12 space-y-4">
+          <h2 className="text-3xl sm:text-4xl md:text-5xl lg:text-6xl font-black text-[#1a1a1a] tracking-tight leading-tight">
+            Perjalananmu Dimulai{" "}
             <span className="bg-gradient-to-r from-[#2563EB] to-[#3B82F6] bg-clip-text text-transparent">
-              Sewa
+               di Sini!
             </span>
           </h2>
-          <p className="text-lg text-[#1a1a1a]/60 font-medium max-w-2xl mx-auto">
-            6 langkah mudah untuk menyewa motor impian Anda
+          <p className="text-xs sm:text-sm md:text-base text-[#1a1a1a]/60 font-medium max-w-4xl leading-relaxed text-left">
+            6 Langkah mudah untuk menyewa motor impian Anda, ikuti langkah sewa berikut!
           </p>
         </div>
 
@@ -91,7 +85,7 @@ export default function AlurSewa() {
           <div className="hidden lg:block absolute top-20 left-0 right-0 h-0.5 bg-gradient-to-r from-transparent via-[#1a1a1a]/10 to-transparent"></div>
 
           {/* Steps Grid */}
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8 lg:gap-12">
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 md:gap-8 lg:gap-12">
             {steps.map((step, i) => {
               const Icon = step.icon;
               return (
@@ -103,7 +97,7 @@ export default function AlurSewa() {
                   {/* Card */}
                   <div className="relative bg-white border border-[#1a1a1a]/10 rounded-3xl p-6 hover:shadow-2xl hover:shadow-[#2563EB]/5 hover:-translate-y-2 transition-all duration-500">
                     {/* Step Number */}
-                    <div className="absolute -top-4 -left-4 w-10 h-10 rounded-2xl bg-gradient-to-br from-[#1a1a1a] to-[#2a2a2a] text-white flex items-center justify-center font-black text-sm shadow-xl">
+                    <div className="absolute -top-4 -left-4 w-9 h-9 sm:w-10 sm:h-10 rounded-2xl bg-gradient-to-br from-[#1a1a1a] to-[#2a2a2a] text-white flex items-center justify-center font-black text-xs sm:text-sm shadow-xl">
                       {i + 1}
                     </div>
 
@@ -115,10 +109,10 @@ export default function AlurSewa() {
                     </div>
 
                     {/* Content */}
-                    <h3 className="font-black text-xl text-[#1a1a1a] mb-2 tracking-tight">
+                    <h3 className="font-black text-lg sm:text-xl text-[#1a1a1a] mb-2 tracking-tight">
                       {step.title}
                     </h3>
-                    <p className="text-sm text-[#1a1a1a]/60 font-medium leading-relaxed">
+                    <p className="text-xs sm:text-sm text-[#1a1a1a]/60 font-medium leading-relaxed">
                       {step.desc}
                     </p>
 
@@ -140,8 +134,8 @@ export default function AlurSewa() {
 
                   {/* Arrow Connector (Mobile) */}
                   {i < steps.length - 1 && (
-                    <div className="lg:hidden flex justify-center my-4">
-                      <div className="w-0.5 h-8 bg-gradient-to-b from-[#2563EB]/40 to-transparent"></div>
+                    <div className="lg:hidden flex justify-center my-2">
+                      <div className="w-0.5 h-5 bg-gradient-to-b from-[#2563EB]/40 to-transparent"></div>
                     </div>
                   )}
                 </div>
@@ -150,16 +144,6 @@ export default function AlurSewa() {
           </div>
         </div>
 
-        {/* CTA */}
-        <div className="mt-20 text-center">
-          <a
-            href="#motor"
-            className="inline-flex items-center gap-3 bg-gradient-to-r from-[#1a1a1a] to-[#2a2a2a] text-white px-8 py-4 rounded-2xl font-bold text-lg hover:scale-105 hover:shadow-2xl hover:shadow-[#1a1a1a]/30 transition-all cursor-pointer group"
-          >
-            <span>Siap Mulai Sewa?</span>
-            <ArrowRight className="w-5 h-5 group-hover:translate-x-1 transition-transform" />
-          </a>
-        </div>
       </div>
     </section>
   );

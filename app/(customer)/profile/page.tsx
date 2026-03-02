@@ -11,6 +11,7 @@ import {
   Briefcase,
   Heart,
   Facebook,
+  ArrowLeft,
 } from "lucide-react";
 import Image from "next/image";
 import { useRouter } from "next/navigation";
@@ -283,12 +284,14 @@ export default function ProfilePage() {
       <div className="max-w-5xl mx-auto px-4">
         {/* Header */}
         <div className="mb-12 space-y-4">
-          <div className="inline-flex items-center gap-2 bg-gradient-to-r from-[#2563EB]/10 to-[#DC2626]/10 border border-[#2563EB]/20 px-4 py-2 rounded-full">
-            <User size={14} className="text-[#2563EB]" />
-            <span className="text-xs font-bold tracking-wider uppercase text-[#1a1a1a]">
-              Profil Saya
-            </span>
-          </div>
+          <button
+            type="button"
+            onClick={() => router.push("/")}
+            aria-label="Kembali ke Beranda"
+            className="inline-flex items-center justify-center rounded-full border border-[#1a1a1a]/15 bg-white w-9 h-9 text-[#1a1a1a] shadow-sm hover:border-[#2563EB]/30 hover:text-[#2563EB] transition-colors"
+          >
+            <ArrowLeft className="w-4 h-4" />
+          </button>
           <h1 className="text-5xl font-black text-[#1a1a1a] tracking-tight">
             Data Diri
           </h1>

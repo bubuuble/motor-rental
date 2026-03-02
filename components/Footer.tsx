@@ -5,7 +5,6 @@ import {
   Phone,
   Mail,
   MapPin,
-  Send,
   Clock,
 } from "lucide-react";
 import Link from "next/link";
@@ -120,8 +119,8 @@ export default function Footer() {
                 { label: "Daftar Motor", href: "/motors" },
                 { label: "Booking Online", href: "/motors" },
                 { label: "Syarat & Ketentuan", href: "/syarat-ketentuan" },
-                { label: "FAQ", href: "/" },
-                { label: "Hubungi Kami", href: "/" },
+                { label: "FAQ", href: "/#faq" },
+                { label: "Hubungi Kami", href: "/#hubungi-kami" },
               ].map((item) => (
                 <li key={item.label}>
                   <Link
@@ -143,11 +142,22 @@ export default function Footer() {
             </h4>
             <ul className="space-y-3">
               {[
-                { name: "Rental Harian", desc: "Mulai 50rb/hari" },
-                { name: "Rental Mingguan", desc: "Lebih hemat" },
-                { name: "Rental Bulanan", desc: "Harga spesial" },
-                { name: "Antar Jemput", desc: "Gratis ongkir*" },
-                { name: "Perawatan Motor", desc: "Premium service" },
+                {
+                  name: "Sewa Harian, Mingguan, Bulanan",
+                  desc: "Durasi fleksibel, harga makin hemat",
+                },
+                {
+                  name: "Antar – Jemput Kendaraan",
+                  desc: "Tarif ojek online + Rp15.000 biaya layanan",
+                },
+                {
+                  name: "Diskon Mahasiswa",
+                  desc: "Potongan Rp10.000/hari dengan KTM aktif",
+                },
+                {
+                  name: "Tanpa DP di Awal",
+                  desc: "Bayar saat serah terima kendaraan",
+                },
               ].map((item) => (
                 <li key={item.name} className="group">
                   <div className="text-sm text-slate-300 group-hover:text-[#2563EB] transition-colors font-bold">
@@ -162,7 +172,7 @@ export default function Footer() {
           </div>
 
           {/* Contact Info */}
-          <div className="lg:col-span-3 space-y-5">
+          <div id="hubungi-kami" className="lg:col-span-3 space-y-5 scroll-mt-28">
             <h4 className="font-black text-white text-sm uppercase tracking-widest">
               Hubungi Kami
             </h4>
@@ -178,7 +188,7 @@ export default function Footer() {
                   <p className="text-[10px] text-slate-500 mb-0.5 font-bold uppercase tracking-wider">
                     Telepon / WhatsApp
                   </p>
-                  <p className="text-sm font-bold text-white">082125901198</p>
+                  <p className="text-sm font-bold text-white">+62 821-2590-1198</p>
                 </div>
               </a>
 
@@ -214,38 +224,6 @@ export default function Footer() {
                 </div>
               </div>
             </div>
-          </div>
-        </div>
-
-        {/* Newsletter Section */}
-        <div className="mt-16 pt-12 border-t border-white/10">
-          <div className="max-w-2xl mx-auto text-center space-y-4">
-            <div className="inline-flex items-center gap-2 bg-gradient-to-r from-[#2563EB]/10 to-[#DC2626]/10 border border-[#2563EB]/20 px-4 py-2 rounded-full backdrop-blur-sm">
-              <div className="w-1.5 h-1.5 rounded-full bg-[#2563EB] animate-pulse"></div>
-              <span className="text-xs font-bold tracking-wider uppercase">
-                Newsletter
-              </span>
-            </div>
-            <h3 className="text-2xl font-black text-white">
-              Dapatkan Promo Spesial
-            </h3>
-            <p className="text-sm text-slate-400 font-medium">
-              Subscribe newsletter kami untuk info promo dan diskon menarik
-            </p>
-            <form className="flex gap-2 max-w-md mx-auto">
-              <input
-                type="email"
-                placeholder="Masukkan email Anda..."
-                className="flex-1 px-5 py-3.5 bg-white/5 border border-white/10 rounded-2xl text-sm text-white placeholder-slate-500 focus:outline-none focus:border-[#2563EB] focus:bg-white/10 backdrop-blur-sm transition-all font-medium"
-              />
-              <button
-                type="submit"
-                className="group px-6 py-3.5 bg-gradient-to-r from-[#2563EB] to-[#3B82F6] hover:from-[#3B82F6] hover:to-[#2563EB] text-white rounded-2xl font-bold text-sm flex items-center gap-2 transition-all shadow-lg shadow-[#2563EB]/20 hover:scale-105"
-              >
-                <Send size={16} />
-                <span className="hidden sm:inline">Subscribe</span>
-              </button>
-            </form>
           </div>
         </div>
       </div>

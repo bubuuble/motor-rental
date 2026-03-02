@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, type MouseEvent } from "react";
 import Link from "next/link";
 import Image from "next/image";
 import { createClient } from "@/utils/supabase/client";
@@ -10,17 +10,21 @@ import {
   ChevronDown,
   UserCircle,
   LayoutDashboard,
+  Menu,
+  X,
 } from "lucide-react";
-import { useRouter } from "next/navigation";
+import { usePathname, useRouter } from "next/navigation";
 import type { User } from "@supabase/supabase-js";
 
 export default function Navbar() {
   const [user, setUser] = useState<User | null>(null);
   const [userRole, setUserRole] = useState<"customer" | "owner" | null>(null);
   const [dropdownOpen, setDropdownOpen] = useState(false);
+  const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [scrolled, setScrolled] = useState(false);
   const supabase = createClient();
   const router = useRouter();
+  const pathname = usePathname();
 
   useEffect(() => {
     const getUser = async () => {
@@ -80,14 +84,61 @@ export default function Navbar() {
     router.push("/login");
   };
 
+  const animateFastScroll = (targetTop: number) => {
+    const startY = window.scrollY;
+    const distance = targetTop - startY;
+    const duration = 350;
+    const startTime = performance.now();
+
+    const easeOutCubic = (time: number) => 1 - Math.pow(1 - time, 3);
+
+    const step = (now: number) => {
+      const elapsed = now - startTime;
+      const progress = Math.min(elapsed / duration, 1);
+      const eased = easeOutCubic(progress);
+      window.scrollTo(0, startY + distance * eased);
+
+      if (progress < 1) {
+        requestAnimationFrame(step);
+      }
+    };
+
+    requestAnimationFrame(step);
+  };
+
+  const handleSectionClick = (
+    event: MouseEvent<HTMLAnchorElement>,
+    sectionId: string,
+  ) => {
+    if (pathname !== "/") return;
+    event.preventDefault();
+    const target = document.getElementById(sectionId);
+    if (!target) return;
+    const top = target.getBoundingClientRect().top + window.scrollY - 110;
+    animateFastScroll(top);
+  };
+
+  const navLinks = [
+    { href: "/", label: "Beranda" },
+    { href: "/motors", label: "Katalog Motor" },
+    { href: "/status", label: "Status Sewa" },
+    { href: "/#layanan-kami", label: "Layanan Kami", sectionId: "layanan-kami" },
+    { href: "/#faq", label: "FAQ", sectionId: "faq" },
+  ];
+
+  const handleMobileLinkClick = () => {
+    setMobileMenuOpen(false);
+  };
+
   return (
     <nav
       className={`sticky top-0 z-50 transition-all duration-300 ${
         scrolled
           ? "bg-white/80 backdrop-blur-xl shadow-lg shadow-[#1a1a1a]/5 border-b border-[#1a1a1a]/10"
-          : "bg-transparent"
+          : "bg-white/95 border-b border-[#1a1a1a]/10"
       }`}
     >
+      <div className="pointer-events-none absolute inset-x-0 bottom-0 h-px bg-gradient-to-r from-transparent via-[#1a1a1a]/12 to-transparent" />
       <div className="max-w-7xl mx-auto px-6 py-4">
         <div className="flex justify-between items-center">
           {/* Logo */}
@@ -115,14 +166,15 @@ export default function Navbar() {
 
           {/* Links */}
           <div className="hidden md:flex items-center gap-1">
-            {[
-              { href: "/", label: "Beranda" },
-              { href: "/motors", label: "Motor" },
-              { href: "/status", label: "Status" },
-            ].map((link) => (
+            {navLinks.map((link) => (
               <Link
                 key={link.href}
                 href={link.href}
+                onClick={
+                  link.sectionId
+                    ? (event) => handleSectionClick(event, link.sectionId)
+                    : undefined
+                }
                 className="relative px-5 py-2 text-sm font-bold text-[#1a1a1a]/70 hover:text-[#1a1a1a] transition-colors group"
               >
                 {link.label}
@@ -143,7 +195,16 @@ export default function Navbar() {
           </div>
 
           {/* Auth */}
-          <div className="relative">
+          <div className="relative flex items-center gap-2">
+            <button
+              type="button"
+              onClick={() => setMobileMenuOpen((prev) => !prev)}
+              aria-label="Buka menu navigasi"
+              className="md:hidden inline-flex items-center justify-center w-10 h-10 rounded-xl border border-[#1a1a1a]/15 bg-white text-[#1a1a1a] hover:text-[#2563EB] hover:border-[#2563EB]/30 transition-colors"
+            >
+              {mobileMenuOpen ? <X size={18} /> : <Menu size={18} />}
+            </button>
+
             {user ? (
               <div className="flex items-center gap-2">
                 <button
@@ -208,6 +269,36 @@ export default function Navbar() {
                   <span className="relative text-white">Login</span>
                 </button>
               </Link>
+            )}
+
+            {mobileMenuOpen && (
+              <div className="md:hidden absolute right-0 top-14 w-64 bg-white/95 backdrop-blur-xl border border-[#1a1a1a]/10 rounded-2xl shadow-2xl py-2 z-[60] animate-in fade-in slide-in-from-top-2 duration-200">
+                {navLinks.map((link) => (
+                  <Link
+                    key={`mobile-${link.href}`}
+                    href={link.href}
+                    onClick={(event) => {
+                      if (link.sectionId) {
+                        handleSectionClick(event, link.sectionId);
+                      }
+                      handleMobileLinkClick();
+                    }}
+                    className="block px-4 py-2.5 text-sm font-semibold text-[#1a1a1a]/85 hover:bg-[#2563EB]/10 hover:text-[#2563EB] transition-colors"
+                  >
+                    {link.label}
+                  </Link>
+                ))}
+
+                {userRole === "owner" && (
+                  <Link
+                    href="/dashboard"
+                    onClick={handleMobileLinkClick}
+                    className="block mt-1 mx-2 px-4 py-2.5 rounded-xl bg-blue-600 text-white text-sm font-bold hover:bg-blue-700 transition-colors"
+                  >
+                    Dashboard
+                  </Link>
+                )}
+              </div>
             )}
           </div>
         </div>

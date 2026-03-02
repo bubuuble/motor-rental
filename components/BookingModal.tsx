@@ -55,12 +55,15 @@ export default function BookingModal({ motor, onClose }: BookingModalProps) {
   const [startDate, setStartDate] = useState("");
   const [endDate, setEndDate] = useState("");
   const [bookingTime, setBookingTime] = useState("");
-  const [rentalType, setRentalType] = useState<"daily" | "weekly" | "monthly">(
+  const [rentalType, setRentalType] = useState<"daily" | "weekly" | "monthly" | "weekend">(
     "daily",
   );
   const [rentalDuration, setRentalDuration] = useState(1);
   const [agreedToTerms, setAgreedToTerms] = useState(false);
   const deliveryFee = 15000;
+  const weekendPackageFee = 15000;
+  const weekendPackageDays = 2;
+  const depositFee = 100000;
 
   // Hitung tanggal selesai berdasarkan tipe dan durasi sewa
   useEffect(() => {
@@ -75,39 +78,50 @@ export default function BookingModal({ motor, onClose }: BookingModalProps) {
       end.setDate(start.getDate() + rentalDuration * 7);
     } else if (rentalType === "monthly") {
       end.setMonth(start.getMonth() + rentalDuration);
+    } else if (rentalType === "weekend") {
+      end.setDate(start.getDate() + weekendPackageDays);
     }
 
     setEndDate(end.toISOString().split("T")[0]);
-  }, [startDate, rentalType, rentalDuration]);
+  }, [startDate, rentalType, rentalDuration, weekendPackageDays]);
+
+  useEffect(() => {
+    if (!startDate || rentalType !== "daily" || rentalDuration !== 1) return;
+    const selectedDay = new Date(startDate).getDay();
+    if (selectedDay === 0 || selectedDay === 6) {
+      setRentalType("weekend");
+      setRentalDuration(weekendPackageDays);
+    }
+  }, [startDate, rentalType, rentalDuration, weekendPackageDays]);
+
+  useEffect(() => {
+    if (rentalType === "weekend" && rentalDuration !== weekendPackageDays) {
+      setRentalDuration(weekendPackageDays);
+    }
+  }, [rentalType, rentalDuration, weekendPackageDays]);
 
   // Hitung total harga berdasarkan tipe sewa
-  const rentalPrice = useMemo(() => {
+  const baseRentalPrice = useMemo(() => {
     if (rentalType === "monthly") {
       return motor.monthlyPrice * rentalDuration;
     } else if (rentalType === "weekly") {
       return motor.weeklyPrice * rentalDuration;
+    } else if (rentalType === "weekend") {
+      return motor.dailyPrice * weekendPackageDays;
     } else {
-      // Daily
-      if (rentalDuration === 1 && startDate) {
-        // Untuk sewa 1 hari, cek apakah weekend
-        const date = new Date(startDate);
-        const dayOfWeek = date.getDay();
-        // Jika Sabtu (6) atau Minggu (0), gunakan harga weekend
-        if (dayOfWeek === 0 || dayOfWeek === 6) {
-          return motor.weekendPrice;
-        }
-      }
       return motor.dailyPrice * rentalDuration;
     }
   }, [
     rentalType,
     rentalDuration,
-    startDate,
     motor.dailyPrice,
     motor.weeklyPrice,
     motor.monthlyPrice,
-    motor.weekendPrice,
+    weekendPackageDays,
   ]);
+
+  const weekendPackageCharge = rentalType === "weekend" ? weekendPackageFee : 0;
+  const rentalPrice = baseRentalPrice + weekendPackageCharge;
 
   // Cek apakah user adalah mahasiswa terverifikasi
   const isVerifiedStudent = useMemo(() => {
@@ -141,38 +155,58 @@ export default function BookingModal({ motor, onClose }: BookingModalProps) {
     return 0; // Tidak ada diskon untuk bulanan
   }, [isVerifiedStudent, rentalType, rentalDuration]);
 
-  const totalPrice = rentalPrice - studentDiscount + (isDelivery ? deliveryFee : 0);
+  const totalPrice =
+    rentalPrice - studentDiscount + (isDelivery ? deliveryFee : 0) + depositFee;
 
   // Fetch data profil saat modal dibuka
   useEffect(() => {
+    let isMounted = true;
+
     const getProfile = async () => {
-      const {
-        data: { user },
-      } = await supabase.auth.getUser();
+      try {
+        const {
+          data: { user },
+        } = await supabase.auth.getUser();
 
-      // Redirect to login if not authenticated
-      if (!user) {
-        alert("Silakan login terlebih dahulu untuk melakukan pemesanan");
-        router.push("/login");
-        onClose();
-        return;
-      }
+        if (!isMounted) return;
 
-      if (user) {
-        const { data } = await supabase
-          .from("profiles")
-          .select("*")
-          .eq("id", user.id)
-          .single();
-        if (data) {
-          console.log("[DEBUG] Profile loaded:", data);
-          console.log("[DEBUG] is_student:", data.is_student);
-          console.log("[DEBUG] student_status_approved:", data.student_status_approved);
-          setProfile(data as UserProfile);
+        // Redirect to login if not authenticated
+        if (!user) {
+          alert("Silakan login terlebih dahulu untuk melakukan pemesanan");
+          router.push("/login");
+          onClose();
+          return;
         }
+
+        if (user) {
+          const { data } = await supabase
+            .from("profiles")
+            .select("*")
+            .eq("id", user.id)
+            .single();
+
+          if (!isMounted) return;
+
+          if (data) {
+            console.log("[DEBUG] Profile loaded:", data);
+            console.log("[DEBUG] is_student:", data.is_student);
+            console.log("[DEBUG] student_status_approved:", data.student_status_approved);
+            setProfile(data as UserProfile);
+          }
+        }
+      } catch (error) {
+        if (error instanceof DOMException && error.name === "AbortError") {
+          return;
+        }
+        console.error("Failed to load profile:", error);
       }
     };
+
     getProfile();
+
+    return () => {
+      isMounted = false;
+    };
   }, [supabase, router, onClose]);
 
   const handleBooking = async () => {
@@ -266,6 +300,14 @@ export default function BookingModal({ motor, onClose }: BookingModalProps) {
       return;
     }
 
+    if (rentalType === "weekend" && startDate) {
+      const startDay = new Date(startDate).getDay();
+      if (startDay !== 6) {
+        alert("Paket Weekend wajib dimulai hari Sabtu (periode Sabtu–Senin).");
+        return;
+      }
+    }
+
     setStep(2);
   };
 
@@ -341,7 +383,7 @@ export default function BookingModal({ motor, onClose }: BookingModalProps) {
                 <label className="text-sm font-bold text-[#1a1a1a]">
                   Tipe Sewa *
                 </label>
-                <div className="grid grid-cols-3 gap-3">
+                <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
                   <button
                     type="button"
                     onClick={() => setRentalType("daily")}
@@ -387,6 +429,24 @@ export default function BookingModal({ motor, onClose }: BookingModalProps) {
                       Rp{motor.monthlyPrice.toLocaleString()}
                     </div>
                   </button>
+                  <button
+                    type="button"
+                    onClick={() => {
+                      setRentalType("weekend");
+                      setRentalDuration(weekendPackageDays);
+                    }}
+                    className={`p-4 rounded-2xl border-2 font-bold text-sm transition-all ${
+                      rentalType === "weekend"
+                        ? "border-[#2563EB] bg-[#2563EB]/10 text-[#2563EB]"
+                        : "border-[#1a1a1a]/10 hover:border-[#2563EB]/50"
+                    }`}
+                  >
+                    <div className="text-lg mb-1">🎉</div>
+                    Weekend
+                    <div className="text-xs font-normal text-[#1a1a1a]/60 mt-1">
+                      2 hari + Rp15.000
+                    </div>
+                  </button>
                 </div>
               </div>
 
@@ -398,6 +458,7 @@ export default function BookingModal({ motor, onClose }: BookingModalProps) {
                       {rentalType === "daily" && "Jumlah Hari *"}
                       {rentalType === "weekly" && "Jumlah Minggu *"}
                       {rentalType === "monthly" && "Jumlah Bulan *"}
+                      {rentalType === "weekend" && "Durasi Weekend *"}
                     </label>
                     <input
                       type="number"
@@ -407,14 +468,22 @@ export default function BookingModal({ motor, onClose }: BookingModalProps) {
                           ? 30
                           : rentalType === "weekly"
                             ? 12
-                            : 12
+                            : rentalType === "monthly"
+                              ? 12
+                              : weekendPackageDays
                       }
                       value={rentalDuration}
                       onChange={(e) =>
                         setRentalDuration(parseInt(e.target.value) || 1)
                       }
-                      className="w-full border-2 border-[#1a1a1a]/10 p-3 rounded-2xl text-sm outline-none focus:border-[#2563EB] focus:bg-[#2563EB]/5 transition font-medium"
+                      disabled={rentalType === "weekend"}
+                      className="w-full border-2 border-[#1a1a1a]/10 p-3 rounded-2xl text-sm outline-none focus:border-[#2563EB] focus:bg-[#2563EB]/5 transition font-medium disabled:bg-[#FAF9F6] disabled:cursor-not-allowed"
                     />
+                    {rentalType === "weekend" && (
+                      <p className="text-xs text-[#1a1a1a]/55">
+                        Paket Weekend otomatis durasi Sabtu–Senin.
+                      </p>
+                    )}
                   </div>
                   <div className="space-y-2">
                     <label className="text-sm font-bold text-[#1a1a1a]">
@@ -460,6 +529,12 @@ export default function BookingModal({ motor, onClose }: BookingModalProps) {
                   <p className="text-xs text-[#1a1a1a]/50">
                     Waktu pengambilan dan pengembalian akan sama
                   </p>
+                  {rentalType === "weekend" && (
+                    <p className="text-xs text-[#2563EB] font-semibold">
+                      Untuk hari Sabtu/Minggu tidak bisa sewa 1 hari, otomatis
+                      masuk Paket Weekend (Sabtu–Senin).
+                    </p>
+                  )}
                 </div>
               </div>
 
@@ -477,10 +552,31 @@ export default function BookingModal({ motor, onClose }: BookingModalProps) {
                       Butuh Antar Jemput Motor
                     </span>
                     <span className="text-xs text-[#DC2626] font-bold">
-                      Rp 15.000
+                      Rp 15.000 + biaya ojek online (menyesuaikan)
                     </span>
+                    <p className="text-xs text-[#1a1a1a]/55 mt-1">
+                      Biaya disesuaikan dari alamat jemput ke Rental Motor
+                      Kukusan dan akan dikordinasikan saat tahap survey.
+                    </p>
                   </div>
                 </label>
+
+                <div className="p-4 rounded-2xl border-2 border-[#2563EB]/20 bg-[#2563EB]/5">
+                  <div className="flex items-center justify-between gap-3">
+                    <span className="text-sm font-bold text-[#1a1a1a]">
+                      Deposit Jaminan (Otomatis)
+                    </span>
+                    <span className="text-sm font-black text-[#2563EB]">
+                      Rp 100.000
+                    </span>
+                  </div>
+                  <p className="text-xs text-[#1a1a1a]/65 mt-2 leading-relaxed">
+                    Bersedia menyerahkan uang deposit senilai Rp 100.000,-. Uang
+                    deposit akan dikembalikan 1x24 jam setelah pengembalian
+                    motor dengan syarat kondisi motor, STNK, helm dan lainnya
+                    dalam kondisi baik sama seperti saat serah terima.
+                  </p>
+                </div>
               </div>
 
               {/* Booking Reason */}
@@ -580,19 +676,11 @@ export default function BookingModal({ motor, onClose }: BookingModalProps) {
                         `Sewa Mingguan (${rentalDuration} minggu)`}
                       {rentalType === "monthly" &&
                         `Sewa Bulanan (${rentalDuration} bulan)`}
-                      {rentalType === "daily" &&
-                        rentalDuration === 1 &&
-                        startDate &&
-                        (() => {
-                          const date = new Date(startDate);
-                          const dayOfWeek = date.getDay();
-                          return dayOfWeek === 0 || dayOfWeek === 6
-                            ? " - Weekend"
-                            : "";
-                        })()}
+                      {rentalType === "weekend" &&
+                        "Paket Weekend (Sabtu–Senin)"}
                     </span>
                     <span className="font-bold text-[#1a1a1a]">
-                      Rp{rentalPrice.toLocaleString()}
+                      Rp{baseRentalPrice.toLocaleString()}
                     </span>
                   </div>
 
@@ -628,6 +716,36 @@ export default function BookingModal({ motor, onClose }: BookingModalProps) {
                       </span>
                     </div>
                   )}
+
+                  {isDelivery && (
+                    <div className="text-xs text-[#1a1a1a]/55 leading-relaxed bg-white/60 rounded-xl p-3 border border-[#1a1a1a]/10">
+                      Biaya ojek online dari alamat jemput ke Rental Motor
+                      Kukusan menyesuaikan dan akan dikordinasikan saat tahap
+                      survey.
+                    </div>
+                  )}
+
+                  {weekendPackageCharge > 0 && (
+                    <div className="flex justify-between text-sm text-[#1a1a1a]/70 font-medium">
+                      <span>Biaya Paket Weekend</span>
+                      <span className="text-[#DC2626] font-bold">
+                        Rp 15.000
+                      </span>
+                    </div>
+                  )}
+
+                  <div className="flex justify-between text-sm text-[#1a1a1a]/70 font-medium">
+                    <span>Deposit Jaminan (dikembalikan)</span>
+                    <span className="text-[#2563EB] font-bold">Rp 100.000</span>
+                  </div>
+
+                  <div className="text-xs text-[#1a1a1a]/55 leading-relaxed bg-white/60 rounded-xl p-3 border border-[#1a1a1a]/10">
+                    Bersedia menyerahkan uang deposit senilai Rp 100.000,-. Uang
+                    deposit akan dikembalikan 1x24 jam setelah pengembalian
+                    motor dengan syarat kondisi motor, STNK, helm dan lainnya
+                    dalam kondisi baik sama seperti saat serah terima.
+                  </div>
+
                   <div className="border-t-2 border-[#1a1a1a]/10 pt-4 mt-4">
                     <div className="flex justify-between items-center">
                       <span className="font-black text-[#1a1a1a]">
@@ -647,7 +765,7 @@ export default function BookingModal({ motor, onClose }: BookingModalProps) {
                     <div className="grid grid-cols-2 gap-2 text-xs text-[#1a1a1a]/60 font-medium">
                       <div>Harian: Rp{motor.dailyPrice.toLocaleString()}</div>
                       <div>
-                        Weekend: Rp{motor.weekendPrice.toLocaleString()}
+                        Paket Weekend: 2 hari + Rp15.000
                       </div>
                       <div>
                         Mingguan: Rp{motor.weeklyPrice.toLocaleString()}
