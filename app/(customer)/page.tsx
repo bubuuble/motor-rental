@@ -76,7 +76,7 @@ export default function HomePage() {
           <h2 className="text-5xl md:text-6xl font-black text-[#1a1a1a] tracking-tight">
             Unit{" "}
             <span className="bg-gradient-to-r from-[#2563EB] to-[#3B82F6] bg-clip-text text-transparent">Motor</span>{" "}
-            Kami
+            Kita
           </h2>
           <p className="text-lg text-[#1a1a1a]/60 font-medium max-w-2xl">
             Pilih motor terbaik untuk perjalanan Anda. Semua unit terawat dan siap pakai.
