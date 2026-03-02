@@ -134,10 +134,10 @@ export default function Navbar() {
             {userRole === "owner" && (
               <Link
                 href="/dashboard"
-                className="relative px-5 py-2 text-sm font-bold text-[#1a1a1a]/70 hover:text-[#1a1a1a] transition-colors group"
+                className="flex items-center gap-2 ml-2 px-4 py-2 bg-blue-600 text-white text-sm font-bold rounded-xl hover:bg-blue-700 hover:shadow-lg hover:shadow-blue-200 transition-all"
               >
+                <LayoutDashboard size={15} strokeWidth={2.5} />
                 Dashboard
-                <span className="absolute bottom-0 left-1/2 -translate-x-1/2 w-0 h-0.5 bg-gradient-to-r from-[#2563EB] to-[#3B82F6] group-hover:w-full transition-all duration-300"></span>
               </Link>
             )}
           </div>
@@ -173,14 +173,14 @@ export default function Navbar() {
                       </p>
                     </div>
 
-                    {/* Dashboard link for owner in dropdown (mobile) */}
+                    {/* Dashboard link for owner in dropdown */}
                     {userRole === "owner" && (
                       <Link
                         href="/dashboard"
                         onClick={() => setDropdownOpen(false)}
-                        className="flex items-center gap-3 px-5 py-3 text-sm font-bold text-[#1a1a1a] hover:bg-[#2563EB]/10 hover:text-[#2563EB] transition-colors md:hidden"
+                        className="flex items-center gap-3 px-5 py-3 text-sm font-bold text-blue-600 hover:bg-blue-50 transition-colors"
                       >
-                        <LayoutDashboard size={18} /> Dashboard
+                        <LayoutDashboard size={18} strokeWidth={2.5} /> Dashboard
                       </Link>
                     )}
 

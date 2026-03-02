@@ -1,25 +1,16 @@
 'use client';
 
-import { Bike, Key, Wrench, Eye, Check, X, ClipboardList, Loader2 } from 'lucide-react';
+import { Bike, Key, Wrench, ClipboardList, Loader2, TrendingUp } from 'lucide-react';
 import { useEffect, useState, useMemo, useCallback } from 'react';
 import { createClient } from '@/utils/supabase/client';
-import { MOTORS_DATA } from '@/app/constants/motors';
 
-// 1. Definisikan Interface untuk Props dan Data
 interface StatCardProps {
   icon: React.ReactNode;
   value: string;
   label: string;
-}
-
-interface OrderSummary {
-  id: string;
-  motor_name: string;
-  start_date: string;
-  status: string;
-  profiles: {
-    full_name: string;
-  } | null;
+  description: string;
+  color: string;
+  delay: number;
 }
 
 interface DashboardStats {
@@ -29,6 +20,11 @@ interface DashboardStats {
   needService: number;
 }
 
+interface YearlyRentalSummary {
+  year: string;
+  rentalCount: number;
+}
+
 export default function DashboardOverview() {
   const [stats, setStats] = useState<DashboardStats>({
     pendingOrders: 0,
@@ -36,58 +32,59 @@ export default function DashboardOverview() {
     rentedMotors: 0,
     needService: 0,
   });
-  const [recentOrders, setRecentOrders] = useState<OrderSummary[]>([]);
+  const [yearlySummary, setYearlySummary] = useState<YearlyRentalSummary[]>([]);
   const [loading, setLoading] = useState(true);
   const supabase = useMemo(() => createClient(), []);
 
   const fetchDashboardData = useCallback(async () => {
     setLoading(true);
     try {
-      // Fetch Pesanan Terbaru
-      const { data: orders } = await supabase
-        .from('bookings')
-        .select('id, motor_name, start_date, status, profiles(full_name)')
-        .order('created_at', { ascending: false })
-        .limit(5);
-
-      // Fetch Count untuk Stats - Menunggu Konfirmasi
+      // Stats
       const { count: pendingCount } = await supabase
         .from('bookings')
         .select('*', { count: 'exact', head: true })
         .eq('status', 'Menunggu Konfirmasi');
 
-      // Fetch count of currently rented motors (Disetujui status)
       const { count: rentedCount } = await supabase
         .from('bookings')
         .select('*', { count: 'exact', head: true })
-        .eq('status', 'Disetujui');
+        .in('status', ['Disetujui', 'Motor Terkirim']);
 
-      // Fetch count of motors in maintenance/service
       const { count: serviceCount } = await supabase
-        .from('bookings')
+        .from('motors')
         .select('*', { count: 'exact', head: true })
-        .eq('status', 'Dalam Perbaikan');
+        .in('service_status', ['Perlu Servis', 'Dalam Perbaikan']);
 
-      // Calculate available motors
-      const totalMotors = MOTORS_DATA.length;
-      const availableCount = totalMotors - (rentedCount || 0);
+      const { count: totalMotors } = await supabase
+        .from('motors')
+        .select('*', { count: 'exact', head: true });
 
-      if (orders) setRecentOrders(orders as unknown as OrderSummary[]);
-      
-      // Update stats with real data
+      const availableCount = (totalMotors || 0) - (rentedCount || 0);
+
       setStats({
         pendingOrders: pendingCount || 0,
         availableMotors: availableCount > 0 ? availableCount : 0,
         rentedMotors: rentedCount || 0,
         needService: serviceCount || 0,
       });
-      
-      console.log('Dashboard Stats:', {
-        pending: pendingCount,
-        available: availableCount,
-        rented: rentedCount,
-        service: serviceCount,
-      });
+
+      // Yearly rental summary
+      const { data: allBookings } = await supabase
+        .from('bookings')
+        .select('created_at')
+        .order('created_at', { ascending: true });
+
+      if (allBookings) {
+        const yearMap = new Map<string, number>();
+        allBookings.forEach(b => {
+          const year = new Date(b.created_at).getFullYear().toString();
+          yearMap.set(year, (yearMap.get(year) || 0) + 1);
+        });
+        const summary: YearlyRentalSummary[] = Array.from(yearMap.entries())
+          .map(([year, rentalCount]) => ({ year, rentalCount }))
+          .sort((a, b) => b.year.localeCompare(a.year));
+        setYearlySummary(summary);
+      }
     } catch (error) {
       console.error('Error fetching dashboard data:', error);
     } finally {
@@ -96,11 +93,7 @@ export default function DashboardOverview() {
   }, [supabase]);
 
   useEffect(() => {
-    const load = async () => {
-      await Promise.resolve();
-      await fetchDashboardData();
-    };
-    load();
+    fetchDashboardData();
   }, [fetchDashboardData]);
 
   if (loading) return <div className="p-20 flex justify-center"><Loader2 className="animate-spin text-blue-600" size={40} /></div>;
@@ -109,68 +102,98 @@ export default function DashboardOverview() {
     <div className="space-y-8 animate-in fade-in duration-500">
       {/* Header */}
       <div className="relative">
-        <div className="absolute -top-4 -left-4 w-32 h-32 bg-gradient-to-br from-[#FF6B35]/20 to-[#00D9FF]/20 rounded-full blur-3xl"></div>
-        <h1 className="text-4xl font-black text-[#1a1a1a] tracking-tight">Dashboard Pemilik</h1>
-        <p className="text-xs text-[#1a1a1a]/40 font-bold uppercase tracking-widest mt-2">Home &gt; Dashboard</p>
+        <div className="absolute -top-4 -left-4 w-40 h-40 bg-blue-100 rounded-full blur-3xl opacity-60" />
+        <h1 className="text-4xl font-black text-slate-900 tracking-tight relative z-10">Dashboard Pemilik</h1>
+        <p className="text-xs text-slate-400 font-bold uppercase tracking-widest mt-2">Home &gt; Dashboard</p>
       </div>
 
       {/* Stats Cards */}
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-        <StatCard icon={<ClipboardList size={24} strokeWidth={2.5} />} value={stats.pendingOrders.toString()} label="Pesanan Masuk" color="coral" delay={0} />
-        <StatCard icon={<Bike size={24} strokeWidth={2.5} />} value={stats.availableMotors.toString()} label="Motor Tersedia" color="green" delay={100} />
-        <StatCard icon={<Key size={24} strokeWidth={2.5} />} value={stats.rentedMotors.toString()} label="Motor Disewa" color="purple" delay={200} />
-        <StatCard icon={<Wrench size={24} strokeWidth={2.5} />} value={stats.needService.toString()} label="Motor Perlu Servis" color="red" delay={300} />
+        <StatCard
+          icon={<ClipboardList size={24} strokeWidth={2.5} />}
+          value={stats.pendingOrders.toString()}
+          label="Pesanan Masuk"
+          description="Pesanan yang menunggu konfirmasi dari pelanggan"
+          color="blue"
+          delay={0}
+        />
+        <StatCard
+          icon={<Bike size={24} strokeWidth={2.5} />}
+          value={stats.availableMotors.toString()}
+          label="Unit Motor Siap Di Sewa"
+          description="Unit motor yang siap disewa saat ini"
+          color="green"
+          delay={100}
+        />
+        <StatCard
+          icon={<Key size={24} strokeWidth={2.5} />}
+          value={stats.rentedMotors.toString()}
+          label="Motor Disewa"
+          description="Unit motor yang sedang aktif disewa pelanggan"
+          color="indigo"
+          delay={200}
+        />
+        <StatCard
+          icon={<Wrench size={24} strokeWidth={2.5} />}
+          value={stats.needService.toString()}
+          label="Motor Perlu Servis"
+          description="Unit motor yang membutuhkan perhatian servis"
+          color="amber"
+          delay={300}
+        />
       </div>
 
-      {/* Recent Orders Table */}
-      <div className="bg-white/80 backdrop-blur-sm border-2 border-[#1a1a1a] rounded-3xl shadow-xl overflow-hidden">
-        <div className="p-6 border-b-2 border-[#1a1a1a]/10 bg-gradient-to-r from-[#FF6B35]/5 to-[#00D9FF]/5">
-          <h2 className="font-black text-[#1a1a1a] text-xl">Pesanan Masuk Terbaru</h2>
-          <p className="text-xs text-[#1a1a1a]/50 font-bold mt-1">Kelola pesanan rental terbaru Anda</p>
+      {/* Yearly Rental Summary Table */}
+      <div className="bg-white border border-blue-100 rounded-2xl shadow-sm overflow-hidden">
+        <div className="p-6 border-b border-blue-100 flex items-center gap-4">
+          <div className="w-10 h-10 bg-blue-600 rounded-xl flex items-center justify-center">
+            <TrendingUp size={20} className="text-white" strokeWidth={2.5} />
+          </div>
+          <div>
+            <h2 className="font-black text-slate-900 text-lg">Rekap Rental Per Tahun</h2>
+            <p className="text-xs text-slate-400 font-semibold mt-0.5">Total jumlah penyewa setiap tahunnya</p>
+          </div>
         </div>
         <div className="overflow-x-auto">
           <table className="w-full text-sm text-left">
-            <thead className="bg-[#FAF9F6] border-b-2 border-[#1a1a1a]/10">
+            <thead className="bg-blue-50/60 border-b border-blue-100">
               <tr>
-                <th className="p-4 text-[10px] font-black text-[#1a1a1a]/60 uppercase tracking-widest">Nama Penyewa</th>
-                <th className="p-4 text-[10px] font-black text-[#1a1a1a]/60 uppercase tracking-widest">Motor</th>
-                <th className="p-4 text-[10px] font-black text-[#1a1a1a]/60 uppercase tracking-widest">Tanggal Sewa</th>
-                <th className="p-4 text-[10px] font-black text-[#1a1a1a]/60 uppercase tracking-widest">Status</th>
-                <th className="p-4 text-[10px] font-black text-[#1a1a1a]/60 uppercase tracking-widest">Aksi</th>
+                <th className="p-4 text-[10px] font-black text-blue-600 uppercase tracking-widest">Tahun</th>
+                <th className="p-4 text-[10px] font-black text-blue-600 uppercase tracking-widest">Total Rental</th>
+                <th className="p-4 text-[10px] font-black text-blue-600 uppercase tracking-widest">Visualisasi</th>
               </tr>
             </thead>
-            <tbody className="divide-y divide-[#1a1a1a]/5">
-              {recentOrders.map((order, index) => (
-                <tr key={order.id} className="hover:bg-[#FF6B35]/5 transition-all" style={{ animationDelay: `${index * 50}ms` }}>
-                  <td className="p-4 font-bold text-[#1a1a1a]">{order.profiles?.full_name || 'Guest'}</td>
-                  <td className="p-4 text-[#1a1a1a]/70 font-medium">{order.motor_name}</td>
-                  <td className="p-4 text-[#1a1a1a]/50 font-mono text-xs">{order.start_date}</td>
-                  <td className="p-4">
-                    <span className={`px-3 py-1.5 rounded-xl text-[9px] font-black uppercase border-2 ${
-                      order.status === 'Disetujui' 
-                        ? 'bg-gradient-to-r from-green-50 to-green-100 text-green-700 border-green-200' 
-                        : 'bg-gradient-to-r from-[#FF6B35]/10 to-[#FF6B35]/20 text-[#FF6B35] border-[#FF6B35]/30'
-                    }`}>
-                      {order.status}
-                    </span>
-                  </td>
-                  <td className="p-4 flex gap-2">
-                    <button className="p-2.5 border-2 border-[#1a1a1a]/10 rounded-xl hover:bg-[#00D9FF]/10 hover:border-[#00D9FF] text-[#00D9FF] transition-all">
-                      <Eye size={16} strokeWidth={2.5} />
-                    </button>
-                    {order.status === "Menunggu Konfirmasi" && (
-                      <>
-                        <button className="p-2.5 border-2 border-[#1a1a1a]/10 rounded-xl hover:bg-green-50 hover:border-green-500 text-green-600 transition-all">
-                          <Check size={16} strokeWidth={2.5} />
-                        </button>
-                        <button className="p-2.5 border-2 border-[#1a1a1a]/10 rounded-xl hover:bg-red-50 hover:border-red-500 text-red-600 transition-all">
-                          <X size={16} strokeWidth={2.5} />
-                        </button>
-                      </>
-                    )}
+            <tbody className="divide-y divide-slate-100">
+              {yearlySummary.map((row, index) => {
+                const max = Math.max(...yearlySummary.map(r => r.rentalCount), 1);
+                const pct = Math.round((row.rentalCount / max) * 100);
+                return (
+                  <tr key={row.year} className="hover:bg-blue-50/40 transition-all" style={{ animationDelay: `${index * 60}ms` }}>
+                    <td className="p-4 font-black text-slate-900 text-base">{row.year}</td>
+                    <td className="p-4">
+                      <span className="inline-flex items-center gap-2">
+                        <span className="text-2xl font-black text-blue-600">{row.rentalCount}</span>
+                        <span className="text-xs text-slate-400 font-bold">penyewa</span>
+                      </span>
+                    </td>
+                    <td className="p-4 w-64">
+                      <div className="w-full bg-blue-100 rounded-full h-2.5">
+                        <div
+                          className="bg-blue-600 h-2.5 rounded-full transition-all duration-700"
+                          style={{ width: `${pct}%` }}
+                        />
+                      </div>
+                    </td>
+                  </tr>
+                );
+              })}
+              {yearlySummary.length === 0 && (
+                <tr>
+                  <td colSpan={3} className="p-8 text-center text-slate-400 font-bold">
+                    Belum ada data rental.
                   </td>
                 </tr>
-              ))}
+              )}
             </tbody>
           </table>
         </div>
@@ -179,30 +202,25 @@ export default function DashboardOverview() {
   );
 }
 
-// 2. Gunakan Interface pada Komponen Statis
-function StatCard({ icon, value, label, color, delay }: StatCardProps & { color: string; delay: number }) {
-  const colorClasses = {
-    coral: 'from-[#FF6B35] to-[#FF8F5F]',
-    green: 'from-green-500 to-green-600',
-    purple: 'from-purple-500 to-purple-600',
-    red: 'from-red-500 to-red-600',
-  }[color];
+function StatCard({ icon, value, label, description, color, delay }: StatCardProps) {
+  const colors = {
+    blue:   { bg: 'bg-blue-600',   light: 'bg-blue-50',   text: 'text-blue-600',   border: 'border-blue-100' },
+    green:  { bg: 'bg-green-600',  light: 'bg-green-50',  text: 'text-green-600',  border: 'border-green-100' },
+    indigo: { bg: 'bg-indigo-600', light: 'bg-indigo-50', text: 'text-indigo-600', border: 'border-indigo-100' },
+    amber:  { bg: 'bg-amber-500',  light: 'bg-amber-50',  text: 'text-amber-600',  border: 'border-amber-100' },
+  }[color] ?? { bg: 'bg-blue-600', light: 'bg-blue-50', text: 'text-blue-600', border: 'border-blue-100' };
 
   return (
-    <div 
-      className={`bg-white/80 backdrop-blur-sm border-2 border-[#1a1a1a] p-6 rounded-2xl flex gap-4 items-center shadow-lg hover:shadow-xl hover:scale-105 transition-all relative overflow-hidden animate-in fade-in slide-in-from-bottom-4`}
+    <div
+      className={`bg-white border ${colors.border} p-6 rounded-2xl shadow-sm hover:shadow-md hover:-translate-y-0.5 transition-all animate-in fade-in slide-in-from-bottom-4`}
       style={{ animationDelay: `${delay}ms` }}
     >
-      {/* Diagonal Accent */}
-      <div className={`absolute top-0 right-0 w-24 h-24 bg-gradient-to-br ${colorClasses} opacity-10 -rotate-12 translate-x-8 -translate-y-8`}></div>
-      
-      <div className={`w-16 h-16 bg-gradient-to-br ${colorClasses} rounded-2xl flex items-center justify-center text-white relative z-10`}>
+      <div className={`w-12 h-12 ${colors.bg} rounded-xl flex items-center justify-center text-white mb-4`}>
         {icon}
       </div>
-      <div className="relative z-10">
-        <div className="text-3xl font-black text-[#1a1a1a] leading-none mb-2">{value}</div>
-        <div className="text-[10px] text-[#1a1a1a]/60 uppercase font-black tracking-widest">{label}</div>
-      </div>
+      <div className={`text-3xl font-black ${colors.text} leading-none mb-1`}>{value}</div>
+      <div className="text-sm font-black text-slate-800 mb-1">{label}</div>
+      <div className="text-xs text-slate-400 font-medium leading-relaxed">{description}</div>
     </div>
   );
 }

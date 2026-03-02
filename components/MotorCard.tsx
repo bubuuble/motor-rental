@@ -2,7 +2,22 @@
 
 import Image from "next/image";
 import { Settings, Calendar, Zap } from "lucide-react";
-import { Motor } from "@/app/constants/motors";
+export interface Motor {
+  id: string;
+  name: string;
+  description: string;
+  dailyPrice: number;
+  weeklyPrice: number;
+  monthlyPrice: number;
+  weekendPrice: number;
+  transmission: string;
+  fuel: string;
+  rating: number;
+  image: string;
+  year: string;
+  cc: string;
+  brand: string;
+}
 
 interface MotorCardProps {
   motor: Motor;
@@ -118,7 +133,7 @@ export default function MotorCard({
                 <span className="relative">Pesan</span>
               </>
             )}
-            {isRented && "Not Available"}
+            {isRented && "Tidak Tersedia"}
           </button>
         </div>
       </div>

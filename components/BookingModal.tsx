@@ -25,6 +25,7 @@ interface UserProfile {
 export interface Motor {
   id: string;
   name: string;
+  description?: string;
   dailyPrice: number;
   weeklyPrice: number;
   monthlyPrice: number;
@@ -33,6 +34,9 @@ export interface Motor {
   fuel: string;
   rating: number;
   image?: string;
+  year?: string;
+  cc?: string;
+  brand?: string;
 }
 
 interface BookingModalProps {
