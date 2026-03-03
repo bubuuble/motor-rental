@@ -174,5 +174,4 @@ export default function MotorsPage() {
         <BookingModal motor={selectedMotor} onClose={() => setSelectedMotor(null)} />
       )}
     </div>
-  );
-}
+  );}

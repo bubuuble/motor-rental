@@ -98,20 +98,20 @@ export default function FinancePage() {
     <div className="space-y-8 animate-in fade-in duration-500">
       <div className="flex justify-between items-center">
         <div className="relative">
-          <div className="absolute -top-4 -left-4 w-32 h-32 bg-gradient-to-br from-green-500/20 to-[#00D9FF]/20 rounded-full blur-3xl"></div>
+          <div className="absolute -top-4 -left-4 w-32 h-32 bg-gradient-to-br from-[#2563EB]/20 to-[#EF4444]/20 rounded-full blur-3xl"></div>
           <h2 className="text-4xl font-black text-[#1a1a1a] tracking-tight relative z-10">Pengelolaan Keuangan</h2>
           <p className="text-xs text-[#1a1a1a]/40 font-bold uppercase tracking-widest mt-2 relative z-10">Laporan revenue & transaksi</p>
         </div>
         <button 
           onClick={handleDownloadExcel}
-          className="bg-gradient-to-r from-[#1a1a1a] to-[#2a2a2a] text-white px-8 py-4 rounded-2xl font-black text-sm flex items-center gap-3 shadow-xl hover:shadow-2xl hover:scale-105 transition-all uppercase tracking-wide"
+          className="bg-red-600 text-white px-8 py-4 rounded-2xl font-black text-sm flex items-center gap-3 shadow-xl hover:shadow-2xl hover:scale-105 transition-all uppercase tracking-wide"
         >
           <Download size={20} strokeWidth={2.5} /> Unduh Excel
         </button>
       </div>
 
       <div className="flex items-center gap-3">
-        <div className="w-10 h-10 rounded-2xl bg-gradient-to-br from-[#FF6B35] to-[#FF8F5F] flex items-center justify-center">
+        <div className="w-10 h-10 rounded-2xl bg-gradient-to-br from-[#2563EB] to-[#3B82F6] flex items-center justify-center">
           <Filter size={18} className="text-white" strokeWidth={2.5} />
         </div>
         {[
@@ -125,8 +125,8 @@ export default function FinancePage() {
             onClick={() => setFilter(f.key)}
             className={`px-6 py-3 rounded-2xl text-xs font-black uppercase tracking-wider transition-all ${
               filter === f.key
-                ? 'bg-gradient-to-r from-[#FF6B35] to-[#FF8F5F] text-white shadow-xl shadow-[#FF6B35]/30 scale-105'
-                : 'bg-white border-2 border-[#1a1a1a]/10 text-[#1a1a1a]/60 hover:border-[#FF6B35]/30 hover:text-[#1a1a1a]'
+                ? 'bg-gradient-to-r from-[#2563EB] to-[#3B82F6] text-white shadow-xl shadow-[#2563EB]/30 scale-105'
+                : 'bg-white border-2 border-[#1a1a1a]/10 text-[#1a1a1a]/60 hover:border-[#2563EB]/30 hover:text-[#1a1a1a]'
             }`}
           >
             {f.label}
@@ -136,12 +136,12 @@ export default function FinancePage() {
 
       <div className="grid grid-cols-4 gap-6">
          <FinanceCard title="Total Pendapatan" value={`Rp ${totalPendapatan.toLocaleString('id-ID')}`} icon={<DollarSign className="text-green-300"/>} />
-         <FinanceCard title="Harian" value={`Rp ${pendapatanHarian.toLocaleString('id-ID')}`} icon={<TrendingUp className="text-blue-600"/>} />
-         <FinanceCard title="Transaksi Lunas" value={`${totalLunas} / ${filteredTransactions.length}`} icon={<FileText className="text-purple-600"/>} />
+         <FinanceCard title="Harian" value={`Rp ${pendapatanHarian.toLocaleString('id-ID')}`} icon={<TrendingUp className="text-red-600"/>} />
+         <FinanceCard title="Transaksi Lunas" value={`${totalLunas} / ${filteredTransactions.length}`} icon={<FileText className="text-red-600"/>} />
       </div>
 
       <div className="bg-white/80 backdrop-blur-sm border-2 border-[#1a1a1a] rounded-3xl overflow-hidden shadow-xl">
-        <div className="p-6 border-b-2 border-[#1a1a1a]/10 bg-gradient-to-r from-green-500/5 to-[#00D9FF]/5">
+        <div className="p-6 border-b-2 border-[#1a1a1a]/10 bg-gradient-to-r from-[#2563EB]/5 to-[#EF4444]/5">
           <h3 className="font-black text-[#1a1a1a] text-xl">Riwayat Transaksi</h3>
           <p className="text-xs text-[#1a1a1a]/50 font-bold mt-1">Semua transaksi rental motor</p>
         </div>
@@ -158,7 +158,7 @@ export default function FinancePage() {
           </thead>
           <tbody className="divide-y divide-[#1a1a1a]/5">
             {filteredTransactions.map((t, index) => (
-              <tr key={t.id} className="hover:bg-[#FF6B35]/5 transition-all animate-in fade-in slide-in-from-bottom-2" style={{ animationDelay: `${index * 50}ms` }}>
+              <tr key={t.id} className="hover:bg-[#2563EB]/5 transition-all animate-in fade-in slide-in-from-bottom-2" style={{ animationDelay: `${index * 50}ms` }}>
                 <td className="p-5 text-[#1a1a1a]/60 font-mono text-xs font-bold">{new Date(t.created_at).toLocaleDateString()}</td>
                 <td className="p-5 font-black text-[#1a1a1a]">{t.profiles?.full_name || 'Guest'}</td>
                 <td className="p-5 text-[#1a1a1a]/70 font-bold">{t.motor_name}</td>
@@ -173,7 +173,7 @@ export default function FinancePage() {
                 <td className="p-5">
                   <button 
                     onClick={() => void togglePayment(t.id, t.payment_status)}
-                    className="flex items-center gap-2 text-xs font-black text-[#00D9FF] hover:bg-[#00D9FF]/10 px-4 py-2 rounded-xl transition-all border-2 border-[#00D9FF]/20 hover:border-[#00D9FF]"
+                    className="flex items-center gap-2 text-xs font-black text-[#EF4444] hover:bg-[#EF4444]/10 px-4 py-2 rounded-xl transition-all border-2 border-[#EF4444]/20 hover:border-[#EF4444]"
                   >
                     <RefreshCw size={14} strokeWidth={2.5} /> SET LUNAS
                   </button>
@@ -190,8 +190,8 @@ export default function FinancePage() {
 function FinanceCard({ title, value, icon }: { title: string, value: string, icon: React.ReactNode }) {
   return (
     <div className="bg-white/80 backdrop-blur-sm border-2 border-[#1a1a1a] p-6 rounded-2xl flex gap-4 items-center shadow-lg hover:shadow-2xl transition-all hover:scale-105 relative overflow-hidden">
-      <div className="absolute top-0 right-0 w-24 h-24 bg-gradient-to-br from-[#FF6B35]/10 to-[#00D9FF]/10 opacity-50 -rotate-12 translate-x-8 -translate-y-8"></div>
-      <div className="w-14 h-14 bg-gradient-to-br from-[#FF6B35] to-[#FF8F5F] border-2 border-[#FF6B35] rounded-2xl flex items-center justify-center relative z-10">{icon}</div>
+      <div className="absolute top-0 right-0 w-24 h-24 bg-gradient-to-br from-[#2563EB]/10 to-[#EF4444]/10 opacity-50 -rotate-12 translate-x-8 -translate-y-8"></div>
+      <div className="w-14 h-14 bg-gradient-to-br from-[#2563EB] to-[#3B82F6] border-2 border-[#2563EB] rounded-2xl flex items-center justify-center relative z-10">{icon}</div>
       <div className="relative z-10">
         <p className="text-[10px] text-[#1a1a1a]/60 font-black uppercase mb-2 tracking-widest">{title}</p>
         <p className="text-2xl font-black text-[#1a1a1a] leading-none">{value}</p>
