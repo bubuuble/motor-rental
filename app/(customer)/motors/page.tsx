@@ -1,96 +1,44 @@
-"use client";
+import { createClient } from "@/utils/supabase/server";
+import { ArrowLeft, Bike } from "lucide-react";
+import Link from "next/link";
+import MotorsContent from "./MotorsContent";
+import type { Motor } from "@/components/MotorCard";
 
-import { useState, useEffect, useMemo } from "react";
-import MotorCard, { Motor } from "@/components/MotorCard";
-import BookingModal from "@/components/BookingModal";
-import { createClient } from "@/utils/supabase/client";
-import { useRouter } from "next/navigation";
-import { ArrowLeft, Bike, Loader2 } from "lucide-react";
+export const revalidate = 60; // revalidate cache every 60 seconds
 
-export default function MotorsPage() {
-  const router = useRouter();
-  const [selectedMotor, setSelectedMotor] = useState<Motor | null>(null);
-  const [motors, setMotors] = useState<Motor[]>([]);
-  const [loading, setLoading] = useState(true);
-  const [rentedMotorIds, setRentedMotorIds] = useState<string[]>([]);
-  const supabase = useMemo(() => createClient(), []);
+export default async function MotorsPage() {
+  const supabase = await createClient();
 
-  // Fetch motors from DB
-  useEffect(() => {
-    let isMounted = true;
+  // Fetch motors and rented status in parallel on the server
+  const [motorsRes, rentedRes] = await Promise.all([
+    supabase
+      .from("motors")
+      .select("id, name, description, daily_price, weekly_price, monthly_price, weekend_price, transmission, fuel, rating, image_url, year, cc, brand")
+      .order("name"),
+    supabase
+      .from("bookings")
+      .select("motor_id")
+      .in("status", ["Disetujui", "Motor Terkirim"]),
+  ]);
 
-    const fetchMotors = async () => {
-      try {
-        const { data } = await supabase
-          .from("motors")
-          .select("*")
-          .order("name");
+  const motors: Motor[] = (motorsRes.data ?? []).map((m) => ({
+    id: m.id,
+    name: m.name,
+    description: m.description || "",
+    dailyPrice: m.daily_price || 0,
+    weeklyPrice: m.weekly_price || 0,
+    monthlyPrice: m.monthly_price || 0,
+    weekendPrice: m.weekend_price || 0,
+    transmission: m.transmission || "Matic",
+    fuel: m.fuel || "Bensin",
+    rating: m.rating || 5.0,
+    image: m.image_url || "/motors/default.jpg",
+    year: m.year || "",
+    cc: m.cc || "",
+    brand: m.brand || "",
+  }));
 
-        if (!isMounted) return;
-
-        if (data) {
-          setMotors(data.map(m => ({
-            id: m.id,
-            name: m.name,
-            description: m.description || '',
-            dailyPrice: m.daily_price || 0,
-            weeklyPrice: m.weekly_price || 0,
-            monthlyPrice: m.monthly_price || 0,
-            weekendPrice: m.weekend_price || 0,
-            transmission: m.transmission || 'Matic',
-            fuel: m.fuel || 'Bensin',
-            rating: m.rating || 5.0,
-            image: m.image_url || '/motors/default.jpg',
-            year: m.year || '',
-            cc: m.cc || '',
-            brand: m.brand || '',
-          })));
-        }
-      } catch (error) {
-        if (error instanceof DOMException && error.name === "AbortError") {
-          return;
-        }
-        console.error("Failed to fetch motors:", error);
-      } finally {
-        if (isMounted) {
-          setLoading(false);
-        }
-      }
-    };
-
-    void fetchMotors();
-
-    return () => {
-      isMounted = false;
-    };
-  }, [supabase]);
-
-  useEffect(() => {
-    let isMounted = true;
-
-    const fetchRented = async () => {
-      try {
-        const { data } = await supabase
-          .from("bookings")
-          .select("motor_id")
-          .in("status", ["Disetujui", "Motor Terkirim"]);
-
-        if (!isMounted) return;
-        if (data) setRentedMotorIds(data.map((d) => String(d.motor_id)));
-      } catch (error) {
-        if (error instanceof DOMException && error.name === "AbortError") {
-          return;
-        }
-        console.error("Failed to fetch rented motors:", error);
-      }
-    };
-
-    void fetchRented();
-
-    return () => {
-      isMounted = false;
-    };
-  }, [supabase]);
+  const rentedMotorIds = (rentedRes.data ?? []).map((d) => String(d.motor_id));
 
   return (
     <div className="min-h-screen bg-gradient-to-b from-white via-[#FAF9F6] to-white">
@@ -107,14 +55,13 @@ export default function MotorsPage() {
         </div>
 
         <div className="relative max-w-6xl mx-auto px-6 pt-10 pb-8">
-          <button
-            type="button"
-            onClick={() => router.push("/")}
+          <Link
+            href="/"
             aria-label="Kembali ke Beranda"
             className="inline-flex items-center justify-center rounded-full border border-[#1a1a1a]/15 bg-white w-9 h-9 text-[#1a1a1a] shadow-sm hover:border-[#2563EB]/30 hover:text-[#2563EB] transition-colors"
           >
             <ArrowLeft className="w-4 h-4" />
-          </button>
+          </Link>
 
           <div className="text-xs md:text-sm text-[#1a1a1a]/40 mb-8 font-medium text-left">
             Beranda <span className="mx-1">/</span>
@@ -147,31 +94,8 @@ export default function MotorsPage() {
 
       {/* Grid */}
       <div className="max-w-6xl mx-auto px-6 pb-16">
-        {loading ? (
-          <div className="flex justify-center py-24"><Loader2 className="animate-spin text-blue-600" size={40} /></div>
-        ) : motors.length > 0 ? (
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-            {motors.map((motor, index) => (
-              <div key={motor.id} className="animate-in fade-in slide-in-from-bottom-4 duration-500" style={{ animationDelay: `${index * 60}ms` }}>
-                <MotorCard
-                  motor={motor}
-                  isRented={rentedMotorIds.includes(String(motor.id))}
-                  onDetail={() => setSelectedMotor(motor)}
-                />
-              </div>
-            ))}
-          </div>
-        ) : (
-          <div className="text-center py-16">
-            <Bike className="w-16 h-16 text-[#1a1a1a]/20 mx-auto mb-4" />
-            <h3 className="text-xl font-bold text-[#1a1a1a] mb-2">Tidak ada motor ditemukan</h3>
-            <p className="text-[#1a1a1a]/60">Motor belum tersedia saat ini</p>
-          </div>
-        )}
+        <MotorsContent motors={motors} rentedMotorIds={rentedMotorIds} />
       </div>
-
-      {selectedMotor && (
-        <BookingModal motor={selectedMotor} onClose={() => setSelectedMotor(null)} />
-      )}
     </div>
-  );}
+  );
+}
