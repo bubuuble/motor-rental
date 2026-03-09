@@ -96,15 +96,15 @@ export default function FinancePage() {
 
   return (
     <div className="space-y-8 animate-in fade-in duration-500">
-      <div className="flex justify-between items-center">
+      <div className="flex flex-col sm:flex-row sm:justify-between sm:items-center gap-4">
         <div className="relative">
           <div className="absolute -top-4 -left-4 w-32 h-32 bg-gradient-to-br from-[#2563EB]/20 to-[#EF4444]/20 rounded-full blur-3xl"></div>
-          <h2 className="text-4xl font-black text-[#1a1a1a] tracking-tight relative z-10">Pengelolaan Keuangan</h2>
+          <h2 className="text-2xl sm:text-4xl font-black text-[#1a1a1a] tracking-tight relative z-10">Pengelolaan Keuangan</h2>
           <p className="text-xs text-[#1a1a1a]/40 font-bold uppercase tracking-widest mt-2 relative z-10">Laporan revenue & transaksi</p>
         </div>
         <button 
           onClick={handleDownloadExcel}
-          className="bg-red-600 text-white px-8 py-4 rounded-2xl font-black text-sm flex items-center gap-3 shadow-xl hover:shadow-2xl hover:scale-105 transition-all uppercase tracking-wide"
+          className="bg-red-600 text-white px-6 py-3 sm:px-8 sm:py-4 rounded-2xl font-black text-sm flex items-center gap-3 shadow-xl hover:shadow-2xl hover:scale-105 transition-all uppercase tracking-wide w-full sm:w-auto justify-center"
         >
           <Download size={20} strokeWidth={2.5} /> Unduh Excel
         </button>

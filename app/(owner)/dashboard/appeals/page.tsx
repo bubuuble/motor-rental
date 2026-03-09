@@ -58,7 +58,7 @@ export default function AppealsPage() {
     <div className="space-y-8 animate-in fade-in duration-500">
       <div className="relative">
         <div className="absolute -top-4 -right-4 w-32 h-32 bg-gradient-to-bl from-red-500/20 to-[#FF6B35]/20 rounded-full blur-3xl"></div>
-        <h2 className="text-4xl font-black text-[#1a1a1a] tracking-tight flex items-center gap-4 relative z-10">
+        <h2 className="text-2xl sm:text-4xl font-black text-[#1a1a1a] tracking-tight flex items-center gap-3 sm:gap-4 relative z-10">
           <div className="w-12 h-12 rounded-2xl bg-gradient-to-br from-red-500 to-red-600 flex items-center justify-center">
             <History className="text-white" size={24} strokeWidth={2.5} />
           </div>

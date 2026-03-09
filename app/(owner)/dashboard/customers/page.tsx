@@ -159,7 +159,7 @@ export default function CustomersManagement() {
     <div className="space-y-8">
       <div className="relative">
         <div className="absolute -top-4 -left-4 w-32 h-32 bg-gradient-to-br from-[#DC2626]/20 to-[#2563EB]/20 rounded-full blur-3xl"></div>
-        <h2 className="text-4xl font-black text-[#1a1a1a] tracking-tight relative z-10">
+        <h2 className="text-2xl sm:text-4xl font-black text-[#1a1a1a] tracking-tight relative z-10">
           Daftar Customer
         </h2>
         <p className="text-xs text-[#1a1a1a]/40 font-bold uppercase tracking-widest mt-2 relative z-10">

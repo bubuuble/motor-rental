@@ -103,7 +103,7 @@ export default function DashboardOverview() {
       {/* Header */}
       <div className="relative">
         <div className="absolute -top-4 -left-4 w-40 h-40 bg-blue-100 rounded-full blur-3xl opacity-60" />
-        <h1 className="text-4xl font-black text-slate-900 tracking-tight relative z-10">Dashboard Pemilik</h1>
+        <h1 className="text-2xl sm:text-4xl font-black text-slate-900 tracking-tight relative z-10">Dashboard Pemilik</h1>
         <p className="text-xs text-slate-400 font-bold uppercase tracking-widest mt-2">Home &gt; Dashboard</p>
       </div>
 

@@ -137,13 +137,13 @@ export default function MessagesPage() {
   return (
     <div className="space-y-6 animate-in fade-in duration-500">
       <div>
-        <h2 className="text-4xl font-black text-slate-900 tracking-tight">Pesan</h2>
+        <h2 className="text-2xl sm:text-4xl font-black text-slate-900 tracking-tight">Pesan</h2>
         <p className="text-xs text-slate-400 font-bold uppercase tracking-widest mt-2">Home &gt; Pesan</p>
       </div>
 
       <div className="bg-white border border-blue-100 rounded-2xl shadow-sm overflow-hidden flex h-[calc(100vh-220px)] min-h-[500px]">
         {/* Left: Customer List */}
-        <div className="w-72 border-r border-blue-100 flex flex-col shrink-0">
+        <div className={`${selectedCustomer ? 'hidden sm:flex' : 'flex'} w-full sm:w-72 border-r border-blue-100 flex-col shrink-0`}>
           <div className="p-4 border-b border-blue-100">
             <div className="relative">
               <Search size={14} className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400" strokeWidth={2.5} />
@@ -183,8 +183,14 @@ export default function MessagesPage() {
 
         {/* Right: Chat Area */}
         {selectedCustomer ? (
-          <div className="flex-1 flex flex-col">
+          <div className="flex-1 flex flex-col min-w-0">
             <div className="p-4 border-b border-blue-100 flex items-center gap-3 bg-blue-50/40">
+              <button
+                onClick={() => setSelectedCustomer(null)}
+                className="sm:hidden p-1.5 rounded-lg hover:bg-blue-100 text-blue-600 transition shrink-0"
+              >
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><path d="M15 18l-6-6 6-6"/></svg>
+              </button>
               <div className="w-9 h-9 bg-blue-600 rounded-full flex items-center justify-center">
                 <span className="text-white font-black text-sm">{selectedCustomer.full_name?.charAt(0)?.toUpperCase()}</span>
               </div>

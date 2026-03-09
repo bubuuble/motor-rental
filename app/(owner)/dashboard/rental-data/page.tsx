@@ -74,9 +74,9 @@ export default function RentalDataPage() {
 
   return (
     <div className="space-y-8 animate-in fade-in duration-500">
-      <div className="flex justify-between items-start">
+      <div className="flex flex-col sm:flex-row sm:justify-between sm:items-start gap-4">
         <div>
-          <h2 className="text-4xl font-black text-slate-900 tracking-tight">Kelola Data Sewa</h2>
+          <h2 className="text-2xl sm:text-4xl font-black text-slate-900 tracking-tight">Kelola Data Sewa</h2>
           <p className="text-xs text-slate-400 font-bold uppercase tracking-widest mt-2">Home &gt; Kelola Data Sewa</p>
         </div>
         <button onClick={() => void fetchRentals()}

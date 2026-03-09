@@ -221,7 +221,7 @@ export default function BookingDetailPage({
       <div className="flex flex-col md:flex-row justify-between items-start gap-6">
         <div className="space-y-3 relative">
           <div className="absolute -top-6 -left-6 w-40 h-40 bg-gradient-to-br from-[#2563EB]/20 to-[#DC2626]/20 rounded-full blur-3xl"></div>
-          <h1 className="text-4xl font-black text-[#1a1a1a] leading-none tracking-tight relative z-10">
+          <h1 className="text-2xl sm:text-4xl font-black text-[#1a1a1a] leading-none tracking-tight relative z-10">
             {booking.motor_name}
           </h1>
           <p className="text-xs font-black text-[#2563EB] uppercase tracking-widest relative z-10">

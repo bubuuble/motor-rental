@@ -16,9 +16,32 @@ import {
 import { usePathname, useRouter } from "next/navigation";
 import type { User } from "@supabase/supabase-js";
 
+function animateFastScroll(targetTop: number) {
+  const startY = window.scrollY;
+  const distance = targetTop - startY;
+  const duration = 350;
+  const startTime = performance.now();
+
+  const easeOutCubic = (time: number) => 1 - Math.pow(1 - time, 3);
+
+  const step = (now: number) => {
+    const elapsed = now - startTime;
+    const progress = Math.min(elapsed / duration, 1);
+    const eased = easeOutCubic(progress);
+    window.scrollTo(0, startY + distance * eased);
+
+    if (progress < 1) {
+      requestAnimationFrame(step);
+    }
+  };
+
+  requestAnimationFrame(step);
+}
+
 export default function Navbar() {
   const [user, setUser] = useState<User | null>(null);
   const [userRole, setUserRole] = useState<"customer" | "owner" | null>(null);
+  const [userName, setUserName] = useState<string | null>(null);
   const [dropdownOpen, setDropdownOpen] = useState(false);
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [scrolled, setScrolled] = useState(false);
@@ -37,12 +60,13 @@ export default function Navbar() {
       if (user) {
         const { data } = await supabase
           .from("profiles")
-          .select("role")
+          .select("role, full_name")
           .eq("id", user.id)
           .single();
 
         if (data) {
           setUserRole(data.role);
+          setUserName(data.full_name);
         }
       }
     };
@@ -57,15 +81,17 @@ export default function Navbar() {
       if (session?.user) {
         const { data } = await supabase
           .from("profiles")
-          .select("role")
+          .select("role, full_name")
           .eq("id", session.user.id)
           .single();
 
         if (data) {
           setUserRole(data.role);
+          setUserName(data.full_name);
         }
       } else {
         setUserRole(null);
+        setUserName(null);
       }
     });
 
@@ -82,28 +108,6 @@ export default function Navbar() {
     await supabase.auth.signOut();
     setDropdownOpen(false);
     router.push("/login");
-  };
-
-  const animateFastScroll = (targetTop: number) => {
-    const startY = window.scrollY;
-    const distance = targetTop - startY;
-    const duration = 350;
-    const startTime = performance.now();
-
-    const easeOutCubic = (time: number) => 1 - Math.pow(1 - time, 3);
-
-    const step = (now: number) => {
-      const elapsed = now - startTime;
-      const progress = Math.min(elapsed / duration, 1);
-      const eased = easeOutCubic(progress);
-      window.scrollTo(0, startY + distance * eased);
-
-      if (progress < 1) {
-        requestAnimationFrame(step);
-      }
-    };
-
-    requestAnimationFrame(step);
   };
 
   const handleSectionClick = (
@@ -214,8 +218,8 @@ export default function Navbar() {
                   <div className="w-7 h-7 bg-white/20 rounded-full flex items-center justify-center backdrop-blur-sm">
                     <UserIcon size={16} />
                   </div>
-                  <span className="text-sm font-bold hidden sm:inline">
-                    Akun
+                  <span className="text-sm font-bold hidden sm:inline max-w-[120px] truncate">
+                    {userName ? userName.split(" ")[0] : "Akun"}
                   </span>
                   <ChevronDown
                     size={14}
