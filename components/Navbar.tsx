@@ -124,9 +124,9 @@ export default function Navbar() {
 
   const navLinks = [
     { href: "/", label: "Beranda" },
+    { href: "/#layanan-kami", label: "Layanan Kami", sectionId: "layanan-kami" },
     { href: "/motors", label: "Katalog Motor" },
     { href: "/status", label: "Status Sewa" },
-    { href: "/#layanan-kami", label: "Layanan Kami", sectionId: "layanan-kami" },
     { href: "/#faq", label: "FAQ", sectionId: "faq" },
   ];
 

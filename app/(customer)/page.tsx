@@ -7,7 +7,6 @@ import Hero from "@/components/Hero";
 import AlurSewa from "@/components/Process";
 import MotorCard from "@/components/MotorCard";
 import BookingModal from "@/components/BookingModal";
-import ChatModal from "@/components/ChatModal";
 import { createClient } from "@/utils/supabase/client";
 import {
   AlertCircle,
@@ -47,7 +46,6 @@ export default function HomePage() {
   const [topMotorIds, setTopMotorIds] = useState<string[]>([]);
   const [openRequirementIndex, setOpenRequirementIndex] = useState<number | null>(0);
   const [openFaqIndex, setOpenFaqIndex] = useState<number | null>(0);
-  const [showChat, setShowChat] = useState(false);
   const [loadingMotors, setLoadingMotors] = useState(true);
   const supabase = useMemo(() => createClient(), []);
 
@@ -403,14 +401,6 @@ export default function HomePage() {
               terawat dan siap pakai.
             </p>
           </div>
-
-          <Link
-            href="/motors"
-            className="group inline-flex w-full sm:w-auto items-center justify-center gap-2 px-6 py-3.5 rounded-2xl border border-[#1a1a1a]/15 bg-white text-[#1a1a1a] font-bold hover:border-[#2563EB]/40 hover:text-[#2563EB] active:scale-[0.99] transition-all"
-          >
-            Lihat motor lainnya
-            <ArrowRight className="w-4 h-4 transition-transform group-hover:translate-x-0.5" />
-          </Link>
         </div>
 
         {loadingMotors ? (
@@ -447,6 +437,16 @@ export default function HomePage() {
             ))}
           </div>
         )}
+
+        <div className="mt-12 flex justify-center">
+          <Link
+            href="/motors"
+            className="group inline-flex w-full sm:w-auto items-center justify-center gap-2 px-8 py-4 rounded-2xl border-2 border-[#2563EB] bg-[#2563EB]/5 text-[#2563EB] font-black hover:bg-[#2563EB] hover:text-white active:scale-[0.99] transition-all shadow-lg hover:shadow-xl hover:shadow-[#2563EB]/30"
+          >
+            Lihat motor lainnya
+            <ArrowRight className="w-5 h-5 transition-transform group-hover:translate-x-1" />
+          </Link>
+        </div>
       </section>
 
       <section id="faq" className="relative scroll-mt-28 max-w-6xl mx-auto px-6 pb-20">
@@ -520,18 +520,6 @@ export default function HomePage() {
         />
       )}
 
-      {/* Floating Chat Button */}
-      <button
-        onClick={() => setShowChat(true)}
-        className="fixed bottom-6 right-6 z-50 w-14 h-14 bg-blue-600 text-white rounded-full shadow-xl hover:bg-blue-700 hover:shadow-2xl hover:shadow-blue-300 hover:scale-110 transition-all flex items-center justify-center"
-        title="Chat dengan Owner"
-      >
-        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
-          <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z" />
-        </svg>
-      </button>
-
-      {showChat && <ChatModal onClose={() => setShowChat(false)} />}
     </main>
   );
 }

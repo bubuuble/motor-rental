@@ -184,8 +184,8 @@ export default function CustomersManagement() {
                 <h3 className="font-black text-[#1a1a1a] truncate">
                   {c.full_name || "No Name"}
                 </h3>
-                <p className="text-[10px] text-[#1a1a1a]/40 flex items-center gap-1 font-bold">
-                  <Mail size={10} /> {c.email}
+                <p className="text-[10px] text-[#1a1a1a]/40 flex items-center gap-1 font-bold truncate">
+                  <Mail size={10} className="shrink-0" /> <span className="truncate">{c.email}</span>
                 </p>
               </div>
             </div>
@@ -196,48 +196,47 @@ export default function CustomersManagement() {
                 {c.phone || "-"}
               </p>
 
-              {/* Full Address Details */}
-              <div className="bg-[#FAF9F6] p-4 rounded-2xl border-2 border-[#1a1a1a]/5 space-y-2">
-                <div className="flex items-start gap-2">
+              <div className="bg-[#FAF9F6] p-4 rounded-2xl border-2 border-[#1a1a1a]/5 space-y-2 w-full overflow-hidden">
+                <div className="flex items-start gap-2 max-w-full">
                   <MapPin
                     size={14}
                     className="text-[#2563EB] shrink-0 mt-0.5"
                     strokeWidth={2.5}
                   />
-                  <div className="flex-1 min-w-0">
+                  <div className="flex-1 min-w-0 break-words">
                     <p className="text-xs font-bold text-[#1a1a1a] mb-2">
                       {c.address || "-"}
                     </p>
                     <div className="grid grid-cols-2 gap-2 text-[10px]">
-                      <div>
-                        <span className="text-[#1a1a1a]/40 font-bold block">
+                      <div className="min-w-0">
+                        <span className="text-[#1a1a1a]/40 font-bold block truncate">
                           Kelurahan
                         </span>
-                        <span className="text-[#1a1a1a] font-bold">
+                        <span className="text-[#1a1a1a] font-bold block truncate">
                           {c.kelurahan || "-"}
                         </span>
                       </div>
-                      <div>
-                        <span className="text-[#1a1a1a]/40 font-bold block">
+                      <div className="min-w-0">
+                        <span className="text-[#1a1a1a]/40 font-bold block truncate">
                           Kecamatan
                         </span>
-                        <span className="text-[#1a1a1a] font-bold">
+                        <span className="text-[#1a1a1a] font-bold block truncate">
                           {c.kecamatan || "-"}
                         </span>
                       </div>
-                      <div>
-                        <span className="text-[#1a1a1a]/40 font-bold block">
+                      <div className="min-w-0">
+                        <span className="text-[#1a1a1a]/40 font-bold block truncate">
                           Kota
                         </span>
-                        <span className="text-[#1a1a1a] font-bold">
+                        <span className="text-[#1a1a1a] font-bold block truncate">
                           {c.city || "-"}
                         </span>
                       </div>
-                      <div>
-                        <span className="text-[#1a1a1a]/40 font-bold block">
+                      <div className="min-w-0">
+                        <span className="text-[#1a1a1a]/40 font-bold block truncate">
                           Provinsi
                         </span>
-                        <span className="text-[#1a1a1a] font-bold">
+                        <span className="text-[#1a1a1a] font-bold block truncate">
                           {c.province || "-"}
                         </span>
                       </div>

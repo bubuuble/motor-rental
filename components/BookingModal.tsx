@@ -65,6 +65,11 @@ export default function BookingModal({ motor, onClose }: BookingModalProps) {
   const weekendPackageDays = 2;
   const depositFee = 100000;
 
+  const todayDate = useMemo(() => {
+    const tzOffset = (new Date()).getTimezoneOffset() * 60000;
+    return (new Date(Date.now() - tzOffset)).toISOString().split("T")[0];
+  }, []);
+
   // Hitung tanggal selesai berdasarkan tipe dan durasi sewa
   useEffect(() => {
     if (!startDate) return;
@@ -287,9 +292,10 @@ export default function BookingModal({ motor, onClose }: BookingModalProps) {
 
   // Logic tombol "Lanjutkan ke Data Pribadi"
   const handleNextStep = () => {
-    if (!profile?.ktp_url || !profile?.sim_url || !profile?.address) {
+    const p = profile;
+    if (!p?.ktp_url || !p?.sim_url || !p?.address || !p?.phone || !p?.full_name || !p?.kelurahan || !p?.kecamatan || !p?.city || !p?.province) {
       alert(
-        "Data profil Anda belum lengkap (KTP/SIM/Alamat). Silakan lengkapi terlebih dahulu di halaman profil.",
+        "Data profil Anda belum lengkap. Silakan lengkapi seluruh data (KTP/SIM/Alamat lengkap) terlebih dahulu di halaman profil.",
       );
       router.push("/profile");
       return;
@@ -491,6 +497,7 @@ export default function BookingModal({ motor, onClose }: BookingModalProps) {
                     </label>
                     <input
                       type="date"
+                      min={todayDate}
                       value={startDate}
                       onChange={(e) => setStartDate(e.target.value)}
                       className="w-full border-2 border-[#1a1a1a]/10 p-3 rounded-2xl text-sm outline-none focus:border-[#2563EB] focus:bg-[#2563EB]/5 transition font-medium"
@@ -520,17 +527,26 @@ export default function BookingModal({ motor, onClose }: BookingModalProps) {
                   <label className="text-sm font-bold text-[#1a1a1a]">
                     Waktu Pengambilan & Pengembalian *
                   </label>
-                  <input
-                    type="time"
+                  <select
                     value={bookingTime}
                     onChange={(e) => setBookingTime(e.target.value)}
-                    className="w-full border-2 border-[#1a1a1a]/10 p-3 rounded-2xl text-sm outline-none focus:border-[#2563EB] focus:bg-[#2563EB]/5 transition font-medium"
-                  />
+                    className="w-full border-2 border-[#1a1a1a]/10 p-3 rounded-2xl text-sm outline-none focus:border-[#2563EB] focus:bg-[#2563EB]/5 transition font-medium bg-white"
+                  >
+                    <option value="" disabled>Pilih Jam</option>
+                    {Array.from({ length: 17 }, (_, i) => i + 6).map((hour) => {
+                      const timeString = `${hour.toString().padStart(2, '0')}:00`;
+                      return (
+                        <option key={timeString} value={timeString}>
+                          {timeString}
+                        </option>
+                      );
+                    })}
+                  </select>
                   <p className="text-xs text-[#1a1a1a]/50">
                     Waktu pengambilan dan pengembalian akan sama
                   </p>
                   {rentalType === "weekend" && (
-                    <p className="text-xs text-[#2563EB] font-semibold">
+                    <p className="text-xs text-red-500 font-semibold">
                       Untuk hari Sabtu/Minggu tidak bisa sewa 1 hari, otomatis
                       masuk Paket Weekend (Sabtu–Senin).
                     </p>
@@ -551,7 +567,7 @@ export default function BookingModal({ motor, onClose }: BookingModalProps) {
                     <span className="text-sm font-bold text-[#1a1a1a] block">
                       Butuh Antar Jemput Motor
                     </span>
-                    <span className="text-xs text-[#DC2626] font-bold">
+                    <span className="text-xs text-[#2563EB] font-bold">
                       Rp 15.000 + biaya ojek online (menyesuaikan)
                     </span>
                     <p className="text-xs text-[#1a1a1a]/55 mt-1">

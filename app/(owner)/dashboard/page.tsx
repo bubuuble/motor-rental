@@ -20,8 +20,9 @@ interface DashboardStats {
   needService: number;
 }
 
-interface YearlyRentalSummary {
-  year: string;
+interface RentalSummary {
+  dateStr: string;
+  displayDate: string;
   rentalCount: number;
 }
 
@@ -32,7 +33,7 @@ export default function DashboardOverview() {
     rentedMotors: 0,
     needService: 0,
   });
-  const [yearlySummary, setYearlySummary] = useState<YearlyRentalSummary[]>([]);
+  const [rentalSummary, setRentalSummary] = useState<RentalSummary[]>([]);
   const [loading, setLoading] = useState(true);
   const supabase = useMemo(() => createClient(), []);
 
@@ -68,22 +69,32 @@ export default function DashboardOverview() {
         needService: serviceCount || 0,
       });
 
-      // Yearly rental summary
+      // Daily rental summary
       const { data: allBookings } = await supabase
         .from('bookings')
         .select('created_at')
-        .order('created_at', { ascending: true });
+        .order('created_at', { ascending: false });
 
       if (allBookings) {
-        const yearMap = new Map<string, number>();
+        const dateMap = new Map<string, { count: number; dateValue: Date }>();
         allBookings.forEach(b => {
-          const year = new Date(b.created_at).getFullYear().toString();
-          yearMap.set(year, (yearMap.get(year) || 0) + 1);
+          const d = new Date(b.created_at);
+          // format local date
+          const pad = (n: number) => n.toString().padStart(2, '0');
+          const dateStr = `${d.getFullYear()}-${pad(d.getMonth() + 1)}-${pad(d.getDate())}`;
+          if (!dateMap.has(dateStr)) {
+            dateMap.set(dateStr, { count: 0, dateValue: d });
+          }
+          dateMap.get(dateStr)!.count += 1;
         });
-        const summary: YearlyRentalSummary[] = Array.from(yearMap.entries())
-          .map(([year, rentalCount]) => ({ year, rentalCount }))
-          .sort((a, b) => b.year.localeCompare(a.year));
-        setYearlySummary(summary);
+        const summary: RentalSummary[] = Array.from(dateMap.entries())
+          .map(([dateStr, data]) => ({
+            dateStr,
+            displayDate: data.dateValue.toLocaleDateString('id-ID', { day: 'numeric', month: 'long', year: 'numeric' }),
+            rentalCount: data.count
+          }))
+          .sort((a, b) => b.dateStr.localeCompare(a.dateStr));
+        setRentalSummary(summary);
       }
     } catch (error) {
       console.error('Error fetching dashboard data:', error);
@@ -150,26 +161,26 @@ export default function DashboardOverview() {
             <TrendingUp size={20} className="text-white" strokeWidth={2.5} />
           </div>
           <div>
-            <h2 className="font-black text-slate-900 text-lg">Rekap Rental Per Tahun</h2>
-            <p className="text-xs text-slate-400 font-semibold mt-0.5">Total jumlah penyewa setiap tahunnya</p>
+            <h2 className="font-black text-slate-900 text-lg">Rekap Rental Harian</h2>
+            <p className="text-xs text-slate-400 font-semibold mt-0.5">Total jumlah penyewa setiap harinya</p>
           </div>
         </div>
         <div className="overflow-x-auto">
           <table className="w-full text-sm text-left">
             <thead className="bg-blue-50/60 border-b border-blue-100">
               <tr>
-                <th className="p-4 text-[10px] font-black text-blue-600 uppercase tracking-widest">Tahun</th>
+                <th className="p-4 text-[10px] font-black text-blue-600 uppercase tracking-widest">Tanggal</th>
                 <th className="p-4 text-[10px] font-black text-blue-600 uppercase tracking-widest">Total Rental</th>
                 <th className="p-4 text-[10px] font-black text-blue-600 uppercase tracking-widest">Visualisasi</th>
               </tr>
             </thead>
             <tbody className="divide-y divide-slate-100">
-              {yearlySummary.map((row, index) => {
-                const max = Math.max(...yearlySummary.map(r => r.rentalCount), 1);
+              {rentalSummary.map((row, index) => {
+                const max = Math.max(...rentalSummary.map(r => r.rentalCount), 1);
                 const pct = Math.round((row.rentalCount / max) * 100);
                 return (
-                  <tr key={row.year} className="hover:bg-blue-50/40 transition-all" style={{ animationDelay: `${index * 60}ms` }}>
-                    <td className="p-4 font-black text-slate-900 text-base">{row.year}</td>
+                  <tr key={row.dateStr} className="hover:bg-blue-50/40 transition-all" style={{ animationDelay: `${index * 60}ms` }}>
+                    <td className="p-4 font-black text-slate-900 text-sm">{row.displayDate}</td>
                     <td className="p-4">
                       <span className="inline-flex items-center gap-2">
                         <span className="text-2xl font-black text-blue-600">{row.rentalCount}</span>
@@ -187,7 +198,7 @@ export default function DashboardOverview() {
                   </tr>
                 );
               })}
-              {yearlySummary.length === 0 && (
+              {rentalSummary.length === 0 && (
                 <tr>
                   <td colSpan={3} className="p-8 text-center text-slate-400 font-bold">
                     Belum ada data rental.
