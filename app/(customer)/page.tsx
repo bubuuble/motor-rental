@@ -432,6 +432,7 @@ export default function HomePage() {
                   }}
                   isRented={rentedMotorIds.includes(motor.id)}
                   onDetail={() => setSelectedMotor(motor)}
+                  priority={true}
                 />
               </div>
             ))}

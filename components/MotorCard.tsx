@@ -23,12 +23,14 @@ interface MotorCardProps {
   motor: Motor;
   isRented?: boolean;
   onDetail: () => void;
+  priority?: boolean;
 }
 
 export default function MotorCard({
   motor,
   isRented = false,
   onDetail,
+  priority = false,
 }: MotorCardProps) {
   return (
     <div
@@ -58,6 +60,8 @@ export default function MotorCard({
           src={motor.image}
           alt={motor.name}
           fill
+          sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
+          priority={priority}
           className="object-contain p-6 transition-transform duration-500 group-hover:scale-110"
         />
 
