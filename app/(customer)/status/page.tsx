@@ -60,6 +60,7 @@ export default function StatusPage() {
         const { data } = await supabase
           .from('bookings')
           .select('*')
+          .eq('user_id', user.id)
           .order('created_at', { ascending: false });
         
         setBookings((data as Booking[]) || []);
@@ -68,12 +69,6 @@ export default function StatusPage() {
     };
     fetchBookings();
   }, [supabase]);
-
-  if (loading) return (
-    <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-[#FAF9F6] to-white">
-      <Loader2 className="animate-spin text-[#2563EB]" size={40} />
-    </div>
-  );
 
   return (
     <div className="min-h-screen bg-gradient-to-b from-white via-[#FAF9F6] to-white py-12">
@@ -89,10 +84,16 @@ export default function StatusPage() {
         </div>
 
         <div className="space-y-6">
-        {bookings.length === 0 ? (
+        {loading ? (
+          <div className="space-y-4">
+            {[1, 2, 3].map((i) => (
+              <div key={i} className="h-28 bg-white border-2 border-[#1a1a1a]/10 rounded-3xl shadow-sm animate-pulse" />
+            ))}
+          </div>
+        ) : bookings.length === 0 ? (
           <div className="text-center py-32 border-2 border-dashed border-[#1a1a1a]/10 rounded-3xl text-[#1a1a1a]/30 bg-gradient-to-br from-[#FAF9F6] to-white">
             <Clock size={60} className="mx-auto mb-4 opacity-20" />
-            <p className="font-black text-lg">Belum ada pemesanan motor</p>
+            <p className="font-black text-lg">Belum ada riwayat pemesanan</p>
             <p className="text-sm mt-2">Booking motor pertama Anda sekarang!</p>
           </div>
         ) : (
