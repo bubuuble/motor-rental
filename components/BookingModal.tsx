@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useEffect, useMemo } from "react";
-import { X, ArrowLeft, Info, Loader2, ExternalLink } from "lucide-react";
+import { X, ArrowLeft, Info, Loader2, ExternalLink, Upload, CreditCard, Banknote, Check } from "lucide-react";
 import { createClient } from "@/utils/supabase/client";
 import { useRouter } from "next/navigation";
 import Image from "next/image";
@@ -51,6 +51,9 @@ export default function BookingModal({ motor, onClose }: BookingModalProps) {
   const [isDelivery, setIsDelivery] = useState(false);
   const [bookingNotes, setBookingNotes] = useState("");
   const [submitting, setSubmitting] = useState(false);
+  const [paymentMethod, setPaymentMethod] = useState<'cash' | 'qris'>('cash');
+  const [paymentProofFile, setPaymentProofFile] = useState<File | null>(null);
+  const [uploadingProof, setUploadingProof] = useState(false);
   const [profile, setProfile] = useState<UserProfile | null>(null);
   const [startDate, setStartDate] = useState("");
   const [endDate, setEndDate] = useState("");
@@ -228,6 +231,12 @@ export default function BookingModal({ motor, onClose }: BookingModalProps) {
       return;
     }
 
+    // Validasi QRIS harus upload bukti
+    if (paymentMethod === 'qris' && !paymentProofFile) {
+      alert("Mohon upload bukti pembayaran QRIS.");
+      return;
+    }
+
     setSubmitting(true);
     try {
       const {
@@ -254,7 +263,33 @@ export default function BookingModal({ motor, onClose }: BookingModalProps) {
         return;
       }
 
-      // 2. Insert ke tabel bookings (Gunakan data dari state modal)
+      // 2. Upload bukti pembayaran QRIS jika ada
+      let paymentProofUrl: string | null = null;
+      if (paymentMethod === 'qris' && paymentProofFile) {
+        setUploadingProof(true);
+        const fileExt = paymentProofFile.name.split('.').pop();
+        const fileName = `payment-proof-${user.id}-${Date.now()}.${fileExt}`;
+
+        const { error: upError } = await supabase.storage
+          .from('documents')
+          .upload(fileName, paymentProofFile);
+
+        if (upError) {
+          alert('Gagal upload bukti pembayaran: ' + upError.message);
+          setUploadingProof(false);
+          setSubmitting(false);
+          return;
+        }
+
+        const { data: { publicUrl } } = supabase.storage
+          .from('documents')
+          .getPublicUrl(fileName);
+
+        paymentProofUrl = publicUrl;
+        setUploadingProof(false);
+      }
+
+      // 3. Insert ke tabel bookings (Gunakan data dari state modal)
       const { error } = await supabase.from("bookings").insert({
         user_id: user.id,
         motor_id: motor.id,
@@ -269,6 +304,8 @@ export default function BookingModal({ motor, onClose }: BookingModalProps) {
         is_delivery: isDelivery,
         notes: bookingNotes,
         status: "Menunggu Konfirmasi",
+        payment_method: paymentMethod,
+        payment_proof_url: paymentProofUrl,
       });
 
       if (error) throw error;
@@ -323,9 +360,9 @@ export default function BookingModal({ motor, onClose }: BookingModalProps) {
         {/* Header */}
         <div className="flex-shrink-0 bg-gradient-to-br from-white to-[#FAF9F6] p-6 border-b border-[#1a1a1a]/10 z-10 rounded-t-3xl flex justify-between items-center gap-3">
           <div className="flex items-center gap-3 min-w-0 flex-1">
-            {step === 2 && (
+            {(step === 2 || step === 3) && (
               <button
-                onClick={() => setStep(1)}
+                onClick={() => setStep(step - 1)}
                 className="hover:bg-[#2563EB]/10 p-2 rounded-xl transition flex-shrink-0 group"
               >
                 <ArrowLeft
@@ -336,7 +373,7 @@ export default function BookingModal({ motor, onClose }: BookingModalProps) {
             )}
             <div className="min-w-0 flex-1">
               <h2 className="text-xl font-black text-[#1a1a1a] tracking-tight truncate">
-                {step === 1 ? "Booking Motor" : "Data Pemesan"}
+                {step === 1 ? "Booking Motor" : step === 2 ? "Data Pemesan" : "Pembayaran QRIS"}
               </h2>
               {step === 1 && (
                 <p className="text-sm text-[#2563EB] font-bold mt-0.5 truncate">
@@ -806,7 +843,7 @@ export default function BookingModal({ motor, onClose }: BookingModalProps) {
                 </span>
               </button>
             </div>
-          ) : (
+          ) : step === 2 ? (
             /* Step 2: Personal Data Form */
             <form className="space-y-6">
               {/* Personal Info */}
@@ -895,28 +932,206 @@ export default function BookingModal({ motor, onClose }: BookingModalProps) {
                 </div>
               )}
 
+              {/* Payment Method Selection */}
+              <div className="space-y-4">
+                <h3 className="font-black text-[#1a1a1a] tracking-tight">
+                  Metode Pembayaran
+                </h3>
+                <div className="grid grid-cols-2 gap-4">
+                  <button
+                    type="button"
+                    onClick={() => setPaymentMethod('cash')}
+                    className={`p-5 rounded-2xl border-2 transition-all flex flex-col items-center gap-3 ${
+                      paymentMethod === 'cash'
+                        ? 'border-[#2563EB] bg-[#2563EB]/10 shadow-lg shadow-[#2563EB]/10'
+                        : 'border-[#1a1a1a]/10 hover:border-[#2563EB]/50'
+                    }`}
+                  >
+                    <div className={`w-12 h-12 rounded-2xl flex items-center justify-center ${
+                      paymentMethod === 'cash'
+                        ? 'bg-[#2563EB] text-white'
+                        : 'bg-[#FAF9F6] text-[#1a1a1a]/40'
+                    }`}>
+                      <Banknote size={24} strokeWidth={2.5} />
+                    </div>
+                    <div className="text-center">
+                      <p className={`font-black text-sm ${
+                        paymentMethod === 'cash' ? 'text-[#2563EB]' : 'text-[#1a1a1a]'
+                      }`}>Cash</p>
+                      <p className="text-[10px] text-[#1a1a1a]/50 font-bold mt-1">
+                        Bayar saat penyerahan motor
+                      </p>
+                    </div>
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => setPaymentMethod('qris')}
+                    className={`p-5 rounded-2xl border-2 transition-all flex flex-col items-center gap-3 ${
+                      paymentMethod === 'qris'
+                        ? 'border-[#2563EB] bg-[#2563EB]/10 shadow-lg shadow-[#2563EB]/10'
+                        : 'border-[#1a1a1a]/10 hover:border-[#2563EB]/50'
+                    }`}
+                  >
+                    <div className={`w-12 h-12 rounded-2xl flex items-center justify-center ${
+                      paymentMethod === 'qris'
+                        ? 'bg-[#2563EB] text-white'
+                        : 'bg-[#FAF9F6] text-[#1a1a1a]/40'
+                    }`}>
+                      <CreditCard size={24} strokeWidth={2.5} />
+                    </div>
+                    <div className="text-center">
+                      <p className={`font-black text-sm ${
+                        paymentMethod === 'qris' ? 'text-[#2563EB]' : 'text-[#1a1a1a]'
+                      }`}>QRIS</p>
+                      <p className="text-[10px] text-[#1a1a1a]/50 font-bold mt-1">
+                        Scan & upload bukti bayar
+                      </p>
+                    </div>
+                  </button>
+                </div>
+                {paymentMethod === 'cash' && (
+                  <div className="flex items-center gap-2 text-xs text-[#2563EB] bg-[#2563EB]/5 p-3 rounded-2xl border border-[#2563EB]/20">
+                    <Info size={14} />
+                    <span className="font-bold">
+                      Pembayaran cash dilakukan saat penyerahan motor oleh tim kami
+                    </span>
+                  </div>
+                )}
+              </div>
+
               {/* Info Notice */}
               <div className="bg-gradient-to-br from-[#DC2626]/10 to-[#DC2626]/5 p-5 rounded-3xl flex gap-3 border-2 border-[#DC2626]/20">
                 <Info size={20} className="text-[#DC2626] shrink-0 mt-0.5" />
                 <p className="text-xs text-[#1a1a1a]/70 leading-relaxed font-medium">
                   Dengan menekan tombol{" "}
-                  <b className="text-[#1a1a1a]">Kirim Pemesanan</b>, Anda
+                  <b className="text-[#1a1a1a]">{paymentMethod === 'cash' ? 'Kirim Pemesanan' : 'Lanjutkan ke Pembayaran'}</b>, Anda
                   menyetujui syarat & ketentuan sewa motor kami. Data Anda akan
                   dijaga kerahasiaannya.
                 </p>
+              </div>
+
+              {/* Submit / Next Button */}
+              {paymentMethod === 'cash' ? (
+                <button
+                  type="button"
+                  onClick={handleBooking}
+                  disabled={submitting}
+                  className="group relative w-full bg-gradient-to-r from-green-600 to-emerald-600 text-white font-black py-4 rounded-2xl hover:from-green-700 hover:to-emerald-700 transition-all shadow-lg shadow-green-200 hover:shadow-xl hover:shadow-green-300 flex justify-center items-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed uppercase tracking-wide text-sm hover:scale-105"
+                >
+                  {submitting && <Loader2 className="animate-spin" size={20} />}
+                  Kirim Pemesanan
+                </button>
+              ) : (
+                <button
+                  type="button"
+                  onClick={() => setStep(3)}
+                  className="group relative w-full bg-[#1a1a1a] text-white font-black py-4 rounded-2xl overflow-hidden transition-all shadow-lg hover:shadow-2xl hover:shadow-[#1a1a1a]/30 hover:scale-105"
+                >
+                  <span className="absolute inset-0 bg-gradient-to-r from-[#2563EB] to-[#3B82F6] opacity-0 group-hover:opacity-100 transition-opacity"></span>
+                  <span className="relative uppercase tracking-wide text-sm flex items-center justify-center gap-2">
+                    <CreditCard size={18} strokeWidth={2.5} />
+                    Lanjutkan ke Pembayaran
+                  </span>
+                </button>
+              )}
+            </form>
+          ) : (
+            /* Step 3: QRIS Payment */
+            <div className="space-y-6">
+              {/* Total Amount */}
+              <div className="bg-gradient-to-br from-[#2563EB]/5 to-[#2563EB]/10 p-6 rounded-3xl border-2 border-[#2563EB]/20 text-center">
+                <p className="text-xs font-black text-[#1a1a1a]/50 uppercase tracking-widest mb-2">Total Pembayaran</p>
+                <p className="text-3xl font-black text-[#2563EB]">Rp{totalPrice.toLocaleString()}</p>
+              </div>
+
+              {/* QRIS Code */}
+              <div className="flex flex-col items-center gap-4">
+                <div className="relative w-64 h-64 bg-white rounded-3xl border-2 border-[#1a1a1a]/10 overflow-hidden shadow-lg p-4">
+                  <Image
+                    src="/images/qris.png"
+                    alt="QRIS"
+                    fill
+                    className="object-contain p-2"
+                  />
+                </div>
+                <p className="text-xs text-[#1a1a1a]/50 font-bold text-center">
+                  Scan kode QRIS di atas untuk melakukan pembayaran
+                </p>
+              </div>
+
+              {/* Upload Proof */}
+              <div className="space-y-3">
+                <label className="text-sm font-black text-[#1a1a1a]">
+                  Upload Bukti Pembayaran <span className="text-red-500">*</span>
+                </label>
+                <div className={`relative border-2 border-dashed rounded-2xl p-6 text-center transition-all ${
+                  paymentProofFile
+                    ? 'border-green-400 bg-green-50'
+                    : 'border-[#1a1a1a]/20 bg-[#FAF9F6] hover:border-[#2563EB]/50 hover:bg-[#2563EB]/5'
+                }`}>
+                  {paymentProofFile ? (
+                    <div className="space-y-2">
+                      <div className="w-12 h-12 bg-green-500 rounded-2xl flex items-center justify-center mx-auto">
+                        <Check size={24} className="text-white" strokeWidth={3} />
+                      </div>
+                      <p className="text-sm font-bold text-green-700">{paymentProofFile.name}</p>
+                      <p className="text-xs text-green-600">
+                        {(paymentProofFile.size / 1024).toFixed(1)} KB
+                      </p>
+                      <button
+                        type="button"
+                        onClick={() => setPaymentProofFile(null)}
+                        className="text-xs text-red-500 font-bold hover:underline"
+                      >
+                        Ganti File
+                      </button>
+                    </div>
+                  ) : (
+                    <div className="space-y-3">
+                      <Upload size={32} className="mx-auto text-[#1a1a1a]/30" strokeWidth={2} />
+                      <div>
+                        <p className="text-sm font-bold text-[#1a1a1a]/60">Klik untuk upload</p>
+                        <p className="text-xs text-[#1a1a1a]/40">Format: JPG, PNG, JPEG (max 5MB)</p>
+                      </div>
+                    </div>
+                  )}
+                  <input
+                    type="file"
+                    accept="image/*"
+                    className="absolute inset-0 opacity-0 cursor-pointer"
+                    onChange={(e) => {
+                      const file = e.target.files?.[0];
+                      if (file) {
+                        if (file.size > 5 * 1024 * 1024) {
+                          alert('Ukuran file maksimal 5MB');
+                          return;
+                        }
+                        setPaymentProofFile(file);
+                      }
+                    }}
+                  />
+                </div>
               </div>
 
               {/* Submit Button */}
               <button
                 type="button"
                 onClick={handleBooking}
-                disabled={submitting}
+                disabled={submitting || uploadingProof || !paymentProofFile}
                 className="group relative w-full bg-gradient-to-r from-green-600 to-emerald-600 text-white font-black py-4 rounded-2xl hover:from-green-700 hover:to-emerald-700 transition-all shadow-lg shadow-green-200 hover:shadow-xl hover:shadow-green-300 flex justify-center items-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed uppercase tracking-wide text-sm hover:scale-105"
               >
-                {submitting && <Loader2 className="animate-spin" size={20} />}
-                Kirim Pemesanan
+                {(submitting || uploadingProof) && <Loader2 className="animate-spin" size={20} />}
+                {uploadingProof ? 'Mengupload...' : 'Upload & Kirim Pemesanan'}
               </button>
-            </form>
+
+              {/* Info */}
+              <div className="flex items-center gap-2 text-xs text-[#1a1a1a]/50 bg-[#FAF9F6] p-3 rounded-2xl border border-[#1a1a1a]/10">
+                <Info size={14} />
+                <span className="font-medium">
+                  Bukti pembayaran akan diverifikasi oleh tim kami sebelum pesanan diproses.
+                </span>
+              </div>
+            </div>
           )}
         </div>
       </div>

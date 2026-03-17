@@ -22,6 +22,8 @@ import {
   Users,
   Facebook,
   Instagram,
+  CreditCard,
+  Banknote,
 } from "lucide-react";
 import Link from "next/link";
 import Image from "next/image";
@@ -34,6 +36,8 @@ interface BookingDetail {
   start_date: string;
   end_date: string;
   delivery_proof_url: string | null;
+  payment_method: string | null;
+  payment_proof_url: string | null;
   profiles: {
     id: string;
     full_name: string;
@@ -481,7 +485,75 @@ export default function BookingDetailPage({
           </div>
         </div>
 
-        {/* Delivery Proof - Takes 1 column */}
+        {/* Payment Info - Takes 1 column */}
+        <div className="space-y-6">
+          <div className="bg-gradient-to-br from-[#2563EB]/5 to-[#3B82F6]/5 p-8 rounded-3xl border-2 border-[#2563EB] shadow-xl space-y-6 hover:shadow-2xl hover:shadow-[#2563EB]/10 transition-all h-fit">
+            <h3 className="font-black text-[#1a1a1a] flex items-center gap-3 pb-4 border-b-2 border-[#2563EB]/20">
+              <div className="w-10 h-10 rounded-2xl bg-gradient-to-br from-[#2563EB] to-[#3B82F6] flex items-center justify-center">
+                <CreditCard size={20} className="text-white" strokeWidth={2.5} />
+              </div>
+              Informasi Pembayaran
+            </h3>
+
+            {/* Payment Method Badge */}
+            <div className="space-y-3">
+              <p className="text-[10px] font-black text-[#1a1a1a]/60 uppercase tracking-widest">Metode Pembayaran</p>
+              <div className={`inline-flex items-center gap-2 px-4 py-2.5 rounded-xl font-black text-sm border-2 ${
+                booking.payment_method === 'qris'
+                  ? 'bg-[#2563EB]/10 text-[#2563EB] border-[#2563EB]/30'
+                  : 'bg-green-50 text-green-700 border-green-200'
+              }`}>
+                {booking.payment_method === 'qris' ? (
+                  <CreditCard size={18} strokeWidth={2.5} />
+                ) : (
+                  <Banknote size={18} strokeWidth={2.5} />
+                )}
+                {booking.payment_method === 'qris' ? 'QRIS' : 'Cash'}
+              </div>
+            </div>
+
+            {/* Payment Proof (QRIS) */}
+            {booking.payment_method === 'qris' && (
+              <div className="space-y-3">
+                <p className="text-[10px] font-black text-[#1a1a1a]/60 uppercase tracking-widest">Bukti Pembayaran</p>
+                {booking.payment_proof_url ? (
+                  <a
+                    href={booking.payment_proof_url}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="block relative h-72 bg-white rounded-2xl border-2 border-[#2563EB]/20 overflow-hidden hover:border-[#2563EB] transition-all group"
+                  >
+                    <Image
+                      src={booking.payment_proof_url}
+                      alt="Bukti Pembayaran QRIS"
+                      fill
+                      className="object-contain p-2 group-hover:scale-105 transition-transform"
+                    />
+                    <div className="absolute inset-0 bg-[#2563EB]/0 group-hover:bg-[#2563EB]/10 transition-all flex items-center justify-center">
+                      <span className="opacity-0 group-hover:opacity-100 transition-opacity bg-[#2563EB] text-white px-4 py-2 rounded-xl text-xs font-black uppercase tracking-wider shadow-lg">
+                        Klik untuk melihat
+                      </span>
+                    </div>
+                  </a>
+                ) : (
+                  <div className="h-40 bg-[#FAF9F6] rounded-2xl border-2 border-dashed border-[#1a1a1a]/10 flex items-center justify-center">
+                    <p className="text-xs text-[#1a1a1a]/30 font-black uppercase">Belum ada bukti</p>
+                  </div>
+                )}
+              </div>
+            )}
+
+            {/* Cash Info */}
+            {booking.payment_method !== 'qris' && (
+              <div className="p-4 bg-amber-50 rounded-2xl border-2 border-amber-200">
+                <p className="text-xs text-amber-700 font-bold leading-relaxed">
+                  💵 Pembayaran cash dilakukan saat penyerahan motor. Pastikan customer membayar penuh sebelum menyerahkan kunci.
+                </p>
+              </div>
+            )}
+          </div>
+
+        {/* Delivery Proof */}
         <div className="bg-gradient-to-br from-[#1a1a1a] to-[#2a2a2a] p-8 rounded-3xl text-white space-y-6 border-2 border-[#1a1a1a] shadow-2xl hover:shadow-[#2563EB]/10 transition-all h-fit">
           <h3 className="font-black flex items-center gap-3 pb-4 border-b-2 border-white/10">
             <div className="w-10 h-10 rounded-2xl bg-gradient-to-br from-[#2563EB] to-[#3B82F6] flex items-center justify-center">
@@ -524,6 +596,7 @@ export default function BookingDetailPage({
             &ldquo;Upload bukti pengiriman secara otomatis akan mengubah status
             pesanan menjadi Motor Terkirim.&rdquo;
           </p>
+        </div>
         </div>
       </div>
 
