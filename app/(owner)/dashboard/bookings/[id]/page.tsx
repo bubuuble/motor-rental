@@ -73,7 +73,7 @@ export default function BookingDetailPage({
   const [loading, setLoading] = useState(true);
   const [uploading, setUploading] = useState(false);
   const [showRejectModal, setShowRejectModal] = useState(false);
-  const [showApproveModal, setShowApproveModal] = useState(false);
+  const [showDeliveryModal, setShowDeliveryModal] = useState(false);
   const [reason, setReason] = useState("");
   const [deliveryDate, setDeliveryDate] = useState("");
   const [showStatusDropdown, setShowStatusDropdown] = useState(false);
@@ -119,7 +119,20 @@ export default function BookingDetailPage({
     alert("Pesanan ditolak. Alasan telah dikirim ke customer.");
   };
 
-  const handleApprove = async () => {
+  const handleApproveOnly = async () => {
+    if (!booking?.profiles) return;
+
+    await supabase
+      .from("bookings")
+      .update({
+        status: "Disetujui",
+      })
+      .eq("id", id);
+
+    await fetchDetail();
+  };
+
+  const handleSetDelivery = async () => {
     if (!deliveryDate) {
       alert("Silakan isi jadwal pengiriman");
       return;
@@ -129,19 +142,18 @@ export default function BookingDetailPage({
     await supabase
       .from("bookings")
       .update({
-        status: "Disetujui",
         delivery_date: deliveryDate,
       })
       .eq("id", id);
 
-    setShowApproveModal(false);
+    setShowDeliveryModal(false);
     setDeliveryDate("");
     await fetchDetail();
 
-    const message = `Halo ${booking.profiles.full_name}, pesanan motor *${booking.motor_name}* Anda telah kami SETUJUI.%0A%0AUnit akan diantar pada: *${deliveryDate}*%0A%0ATerima kasih!`;
+    const message = `Halo ${booking.profiles.full_name}, Unit motor *${booking.motor_name}* pesanan Anda akan diantar pada: *${deliveryDate}*%0A%0ATerima kasih!`;
     window.open(
       `https://wa.me/${booking.profiles.phone.replace(/^0/, "62")}?text=${message}`,
-      "_blank",
+      "_blank"
     );
   };
 
@@ -236,7 +248,7 @@ export default function BookingDetailPage({
           {booking.status === "Menunggu Konfirmasi" && (
             <>
               <button
-                onClick={() => setShowApproveModal(true)}
+                onClick={() => void handleApproveOnly()}
                 className="flex items-center gap-2 bg-gradient-to-r from-green-600 to-green-700 text-white px-6 py-3 rounded-2xl font-black hover:shadow-xl hover:shadow-green-500/30 transition-all hover:scale-105"
               >
                 <Check size={18} strokeWidth={2.5} /> Setujui
@@ -251,7 +263,7 @@ export default function BookingDetailPage({
           )}
           {booking.status === "Disetujui" && (
             <button
-              onClick={() => setShowApproveModal(true)}
+              onClick={() => setShowDeliveryModal(true)}
               className="flex items-center gap-2 bg-gradient-to-r from-[#DC2626] to-[#EF4444] text-white px-6 py-3 rounded-2xl font-black hover:shadow-xl hover:shadow-[#DC2626]/30 transition-all hover:scale-105"
             >
               <Calendar size={18} strokeWidth={2.5} /> Atur Pengiriman
@@ -600,8 +612,8 @@ export default function BookingDetailPage({
         </div>
       </div>
 
-      {/* Modal Setujui */}
-      {showApproveModal && (
+      {/* Modal Jadwal Pengantaran */}
+      {showDeliveryModal && (
         <div className="fixed inset-0 bg-black/60 z-[110] flex items-center justify-center p-4 backdrop-blur-sm">
           <div className="bg-white/90 backdrop-blur-xl w-full max-w-md rounded-3xl border-2 border-[#1a1a1a] shadow-2xl animate-in zoom-in duration-200">
             <div className="p-8 space-y-6">
@@ -636,13 +648,13 @@ export default function BookingDetailPage({
               </div>
 
               <button
-                onClick={() => void handleApprove()}
+                onClick={() => void handleSetDelivery()}
                 className="w-full bg-gradient-to-r from-green-600 to-green-700 text-white font-black py-4 rounded-2xl flex items-center justify-center gap-3 hover:shadow-xl hover:shadow-green-500/30 transition-all hover:scale-105 uppercase tracking-wide"
               >
-                <Send size={18} strokeWidth={2.5} /> SIMPAN &amp; CHAT WHATSAPP
+                <Send size={18} strokeWidth={2.5} /> SIMPAN JADWAL &amp; CHAT WA
               </button>
               <button
-                onClick={() => setShowApproveModal(false)}
+                onClick={() => setShowDeliveryModal(false)}
                 className="w-full text-sm font-bold text-[#1a1a1a]/50 hover:text-[#1a1a1a] transition"
               >
                 Batalkan
