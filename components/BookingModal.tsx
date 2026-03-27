@@ -987,7 +987,7 @@ export default function BookingModal({ motor, onClose }: BookingModalProps) {
                 <div className="flex items-center gap-2 text-xs text-[#2563EB] bg-[#2563EB]/5 p-3 rounded-2xl border border-[#2563EB]/20">
                   <Info size={14} />
                   <span className="font-bold">
-                    Setelah pesanan disetujui, Anda akan diminta upload bukti pembayaran QRIS di halaman Status Pesanan.
+                    Setelah motor diantar, Anda akan diminta upload bukti pembayaran QRIS di halaman Status Pesanan.
                   </span>
                 </div>
               )}

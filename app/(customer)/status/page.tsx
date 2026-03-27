@@ -381,8 +381,8 @@ export default function StatusPage() {
                     )}
                   </div>
 
-                  {/* QRIS Payment Section — after approval */}
-                  {item.payment_method === 'qris' && ['Disetujui', 'Motor Terkirim', 'Selesai'].includes(item.status) && (
+                  {/* QRIS Payment Section — after delivery */}
+                  {item.payment_method === 'qris' && ['Motor Terkirim', 'Selesai'].includes(item.status) && (
                     <div className="border-t border-slate-200 pt-6 space-y-4">
                       <h4 className="font-bold text-slate-900 flex items-center gap-2">
                         <CreditCard size={18} className="text-blue-600" /> Pembayaran QRIS
