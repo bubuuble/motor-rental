@@ -48,7 +48,6 @@ export default function BookingModal({ motor, onClose }: BookingModalProps) {
   const supabase = useMemo(() => createClient(), []);
   const router = useRouter();
   const [step, setStep] = useState(1);
-  const [isDelivery, setIsDelivery] = useState(false);
   const [bookingNotes, setBookingNotes] = useState("");
   const [submitting, setSubmitting] = useState(false);
   const [paymentMethod, setPaymentMethod] = useState<'cash' | 'qris'>('cash');
@@ -61,10 +60,32 @@ export default function BookingModal({ motor, onClose }: BookingModalProps) {
   );
   const [rentalDuration, setRentalDuration] = useState(1);
   const [agreedToTerms, setAgreedToTerms] = useState(false);
-  const deliveryFee = 15000;
   const weekendPackageFee = 15000;
   const weekendPackageDays = 2;
   const depositFee = 100000;
+
+  // Ongkir antar motor berbasis kecamatan
+  const ongkirOptions = [
+    {
+      price: 30000,
+      areas: ["Beji", "Pancoran Mas"],
+    },
+    {
+      price: 40000,
+      areas: ["Sukmajaya", "Cilodong", "Cimanggis"],
+    },
+    {
+      price: 60000,
+      areas: ["Sawangan", "Bojongsari"],
+    },
+    {
+      price: 70000,
+      areas: ["Tapos", "Cinere", "Limo"],
+    },
+  ];
+  // Delivery method: 'diantar' (delivered) or 'diambil' (pickup)
+  const [deliveryMethod, setDeliveryMethod] = useState<'diantar' | 'diambil' | null>(null);
+  const [deliveryOngkir, setDeliveryOngkir] = useState<number|null>(null);
 
   const todayDate = useMemo(() => {
     const tzOffset = (new Date()).getTimezoneOffset() * 60000;
@@ -161,8 +182,9 @@ export default function BookingModal({ motor, onClose }: BookingModalProps) {
     return 0; // Tidak ada diskon untuk bulanan
   }, [isVerifiedStudent, rentalType, rentalDuration]);
 
+  // Only add ongkir if deliveryMethod is 'diantar' and ongkir is selected
   const totalPrice =
-    rentalPrice - studentDiscount + (isDelivery ? deliveryFee : 0) + depositFee;
+    rentalPrice - studentDiscount + ((deliveryMethod === 'diantar' && deliveryOngkir) ? deliveryOngkir : 0) + depositFee;
 
   // Fetch data profil saat modal dibuka
   useEffect(() => {
@@ -267,7 +289,8 @@ export default function BookingModal({ motor, onClose }: BookingModalProps) {
         rental_type: rentalType,
         rental_duration: rentalDuration,
         total_price: totalPrice,
-        is_delivery: isDelivery,
+        is_delivery: !!deliveryOngkir,
+        delivery_ongkir: deliveryOngkir,
         notes: bookingNotes,
         status: "Menunggu Konfirmasi",
         payment_method: paymentMethod,
@@ -564,45 +587,65 @@ export default function BookingModal({ motor, onClose }: BookingModalProps) {
                 </div>
               </div>
 
-              {/* Delivery Option */}
-              <div className="space-y-3">
-                <label className="flex items-center gap-3 p-4 bg-white rounded-2xl border-2 border-[#1a1a1a]/10 cursor-pointer hover:border-[#2563EB] hover:bg-[#2563EB]/5 transition">
-                  <input
-                    type="checkbox"
-                    checked={isDelivery}
-                    onChange={(e) => setIsDelivery(e.target.checked)}
-                    className="w-5 h-5 accent-[#2563EB] cursor-pointer"
-                  />
-                  <div className="flex-1">
-                    <span className="text-sm font-bold text-[#1a1a1a] block">
-                      Butuh Antar Jemput Motor
-                    </span>
-                    <span className="text-xs text-[#2563EB] font-bold">
-                      Rp 15.000 + biaya ojek online (menyesuaikan)
-                    </span>
-                    <p className="text-xs text-[#1a1a1a]/55 mt-1">
-                      Biaya disesuaikan dari alamat jemput ke Rental Motor
-                      Kukusan dan akan dikordinasikan saat tahap survey.
-                    </p>
-                  </div>
-                </label>
-
-                <div className="p-4 rounded-2xl border-2 border-[#2563EB]/20 bg-[#2563EB]/5">
-                  <div className="flex items-center justify-between gap-3">
-                    <span className="text-sm font-bold text-[#1a1a1a]">
-                      Deposit Jaminan (Otomatis)
-                    </span>
-                    <span className="text-sm font-black text-[#2563EB]">
-                      Rp 100.000
-                    </span>
-                  </div>
-                  <p className="text-xs text-[#1a1a1a]/65 mt-2 leading-relaxed">
-                    Bersedia menyerahkan uang deposit senilai Rp 100.000,-. Uang
-                    deposit akan dikembalikan 1x24 jam setelah pengembalian
-                    motor dengan syarat kondisi motor, STNK, helm dan lainnya
-                    dalam kondisi baik sama seperti saat serah terima.
-                  </p>
+              {/* --- Delivery Method Selection --- */}
+              <div className="space-y-2">
+                <label className="text-sm font-bold text-[#1a1a1a]">Pilih Metode Pengambilan Motor *</label>
+                <div className="flex gap-4 mt-1">
+                  <button
+                    type="button"
+                    className={`flex-1 p-4 rounded-2xl border-2 font-bold text-sm transition-all ${deliveryMethod === 'diantar' ? 'border-[#2563EB] bg-[#2563EB]/10 text-[#2563EB]' : 'border-[#1a1a1a]/10 hover:border-[#2563EB]/50'}`}
+                    onClick={() => { setDeliveryMethod('diantar'); setDeliveryOngkir(null); }}
+                  >
+                    Diantar ke Alamat
+                  </button>
+                  <button
+                    type="button"
+                    className={`flex-1 p-4 rounded-2xl border-2 font-bold text-sm transition-all ${deliveryMethod === 'diambil' ? 'border-[#2563EB] bg-[#2563EB]/10 text-[#2563EB]' : 'border-[#1a1a1a]/10 hover:border-[#2563EB]/50'}`}
+                    onClick={() => { setDeliveryMethod('diambil'); setDeliveryOngkir(null); }}
+                  >
+                    Ambil ke Tempat
+                  </button>
                 </div>
+              </div>
+
+              {/* --- Ongkir Selection (only if diantar) --- */}
+              {deliveryMethod === 'diantar' && (
+                <div className="mt-6">
+                  <label className="font-bold text-[#1a1a1a] text-base">Pilih Ongkir Antar Motor</label>
+                  <p className="text-xs text-[#1a1a1a]/60 mb-2">Harga berdasarkan wilayah kecamatan tujuan di Depok</p>
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    {ongkirOptions.map((option, idx) => (
+                      <button
+                        key={option.price}
+                        type="button"
+                        className={`w-full text-left p-5 rounded-2xl border-2 transition-all ${deliveryOngkir === option.price ? 'border-[#2563EB] bg-[#2563EB]/10' : 'border-[#2563EB]/20 hover:border-[#2563EB]/40'}`}
+                        onClick={() => setDeliveryOngkir(option.price)}
+                      >
+                        <div className="flex items-center gap-3">
+                          <span className={`w-5 h-5 rounded-full border-2 flex items-center justify-center ${deliveryOngkir === option.price ? 'border-[#2563EB] bg-[#2563EB]' : 'border-[#2563EB]/40 bg-white'}`}>{deliveryOngkir === option.price && <span className="w-2.5 h-2.5 bg-white rounded-full block" />}</span>
+                          <span className="font-black text-[#2563EB] text-2xl">Rp {option.price.toLocaleString('id-ID')}</span>
+                        </div>
+                        <div className="text-sm text-[#1a1a1a]/80 mt-1 font-semibold">{option.areas.join(', ')}</div>
+                      </button>
+                    ))}
+                  </div>
+                </div>
+              )}
+              <div className="p-4 rounded-2xl border-2 border-[#2563EB]/20 bg-[#2563EB]/5">
+                <div className="flex items-center justify-between gap-3">
+                  <span className="text-sm font-bold text-[#1a1a1a]">
+                    Deposit Jaminan (Otomatis)
+                  </span>
+                  <span className="text-sm font-black text-[#2563EB]">
+                    Rp 100.000
+                  </span>
+                </div>
+                <p className="text-xs text-[#1a1a1a]/65 mt-2 leading-relaxed">
+                  Bersedia menyerahkan uang deposit senilai Rp 100.000,-. Uang
+                  deposit akan dikembalikan 1x24 jam setelah pengembalian
+                  motor dengan syarat kondisi motor, STNK, helm dan lainnya
+                  dalam kondisi baik sama seperti saat serah terima.
+                </p>
               </div>
 
               {/* Booking Reason */}
@@ -734,22 +777,7 @@ export default function BookingModal({ motor, onClose }: BookingModalProps) {
                     </div>
                   )}
 
-                  {isDelivery && (
-                    <div className="flex justify-between text-sm text-[#1a1a1a]/70 font-medium">
-                      <span>Layanan Antar Jemput</span>
-                      <span className="text-[#DC2626] font-bold">
-                        Rp 15.000
-                      </span>
-                    </div>
-                  )}
 
-                  {isDelivery && (
-                    <div className="text-xs text-[#1a1a1a]/55 leading-relaxed bg-white/60 rounded-xl p-3 border border-[#1a1a1a]/10">
-                      Biaya ojek online dari alamat jemput ke Rental Motor
-                      Kukusan menyesuaikan dan akan dikordinasikan saat tahap
-                      survey.
-                    </div>
-                  )}
 
                   {weekendPackageCharge > 0 && (
                     <div className="flex justify-between text-sm text-[#1a1a1a]/70 font-medium">
@@ -757,6 +785,15 @@ export default function BookingModal({ motor, onClose }: BookingModalProps) {
                       <span className="text-[#DC2626] font-bold">
                         Rp 15.000
                       </span>
+                    </div>
+                  )}
+
+
+                  {/* Ongkir jika diantar */}
+                  {deliveryMethod === 'diantar' && deliveryOngkir && (
+                    <div className="flex justify-between text-sm text-[#1a1a1a]/70 font-medium">
+                      <span>Ongkir Antar Motor</span>
+                      <span className="text-[#2563EB] font-bold">Rp{deliveryOngkir.toLocaleString('id-ID')}</span>
                     </div>
                   )}
 
