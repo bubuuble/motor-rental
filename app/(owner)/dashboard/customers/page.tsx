@@ -247,17 +247,16 @@ export default function CustomersManagement() {
             </div>
 
             <div className="flex gap-2 pt-4 border-t-2 border-[#1a1a1a]/10">
-              <DocButton label="KTP" url={c.ktp_url} small />
-              <DocButton label="SIM" url={c.sim_url} small />
+              <DocButton label="KTP" url={c.ktp_url} />
+              <DocButton label="SIM" url={c.sim_url} />
               <button
-                className="flex-1 py-2 px-2 bg-gradient-to-r from-[#2563EB]/10 to-[#2563EB]/20 border-2 border-[#2563EB]/30 rounded-xl flex items-center justify-center text-[10px] font-black text-[#2563EB] hover:from-[#2563EB] hover:to-[#3B82F6] hover:text-white transition-all uppercase hover:scale-105"
-                style={{ minHeight: 0, height: '36px', fontSize: '11px' }}
+                className="flex-1 p-3 bg-gradient-to-r from-[#2563EB]/10 to-[#2563EB]/20 border-2 border-[#2563EB]/30 rounded-2xl flex items-center justify-center gap-2 text-[9px] font-black text-[#2563EB] hover:from-[#2563EB] hover:to-[#3B82F6] hover:text-white transition-all uppercase hover:scale-105"
                 onClick={(e) => {
                   e.stopPropagation();
                   setSelectedCustomer(c);
                 }}
               >
-                Detail
+                <Eye size={12} strokeWidth={2.5} /> Detail
               </button>
             </div>
           </div>
@@ -523,14 +522,10 @@ export default function CustomersManagement() {
   );
 }
 
-function DocButton({ label, url, small }: { label: string; url: string | null; small?: boolean }) {
+function DocButton({ label, url }: { label: string; url: string | null }) {
   if (!url)
     return (
-      <div className={
-        small
-          ? "py-2 px-2 border-2 border-dashed border-[#1a1a1a]/10 rounded-xl text-[10px] text-[#1a1a1a]/20 text-center uppercase font-black bg-white min-h-0 h-9"
-          : "p-4 border-2 border-dashed border-[#1a1a1a]/10 rounded-2xl text-xs text-[#1a1a1a]/20 text-center uppercase font-black bg-white"
-      }>
+      <div className="p-4 border-2 border-dashed border-[#1a1a1a]/10 rounded-2xl text-xs text-[#1a1a1a]/20 text-center uppercase font-black bg-white">
         No {label}
       </div>
     );
@@ -538,14 +533,9 @@ function DocButton({ label, url, small }: { label: string; url: string | null; s
     <a
       href={url}
       target="_blank"
-      className={
-        small
-          ? "flex-1 py-2 px-2 bg-gradient-to-r from-[#DC2626]/10 to-[#DC2626]/20 border-2 border-[#DC2626]/30 rounded-xl flex items-center justify-center text-[11px] font-black text-[#DC2626] hover:from-[#DC2626] hover:to-[#EF4444] hover:text-white transition-all uppercase hover:scale-105 min-h-0 h-9"
-          : "p-4 bg-gradient-to-r from-[#DC2626]/10 to-[#DC2626]/20 border-2 border-[#DC2626]/30 rounded-2xl flex items-center justify-center text-sm font-black text-[#DC2626] hover:from-[#DC2626] hover:to-[#EF4444] hover:text-white transition-all uppercase hover:scale-105"
-      }
-      style={small ? { minHeight: 0, height: '36px', fontSize: '11px' } : {}}
+      className="p-4 bg-gradient-to-r from-[#DC2626]/10 to-[#DC2626]/20 border-2 border-[#DC2626]/30 rounded-2xl flex items-center justify-center gap-2 text-sm font-black text-[#DC2626] hover:from-[#DC2626] hover:to-[#EF4444] hover:text-white transition-all uppercase hover:scale-105"
     >
-      Lihat {label}
+      <ImageIcon size={16} strokeWidth={2.5} /> Lihat {label}
     </a>
   );
 }
