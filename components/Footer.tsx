@@ -53,7 +53,7 @@ export default function Footer() {
               </div>
             </div>
             <p className="text-sm leading-relaxed text-slate-400 font-medium">
-              Penyewaan motor terpercaya di Kukusan, Depok. Lebih dari 5 tahun
+              Penyewaan motor terpercaya di Kukusan, Depok. Lebih dari 10 tahun
               melayani dengan armada terawat dan harga terjangkau.
             </p>
 
@@ -68,11 +68,11 @@ export default function Footer() {
               <div className="text-xs space-y-1.5 text-slate-400 font-medium">
                 <p className="flex justify-between">
                   <span>Senin - Sabtu</span>
-                  <span className="text-white">08.00 - 20.00</span>
+                  <span className="text-white">08.00 - 18.00</span>
                 </p>
                 <p className="flex justify-between">
                   <span>Minggu</span>
-                  <span className="text-white">09.00 - 18.00</span>
+                  <span className="text-white">TUTUP</span>
                 </p>
               </div>
             </div>
