@@ -159,10 +159,10 @@ export default function Navbar() {
               </div>
             </div>
             <div className="hidden sm:block">
-              <h1 className="font-black text-lg leading-none text-[#1a1a1a] tracking-tight">
+              <h1 className="font-black text-xl leading-none text-[#1a1a1a] tracking-tight">
                 Rental Motor
               </h1>
-              <p className="text-[9px] font-bold text-[#2563EB] uppercase tracking-widest">
+              <p className="font-black text-xl leading-none text-[#2563EB] tracking-tight">
                 Kukusan
               </p>
             </div>

@@ -1,7 +1,6 @@
 import {
   Facebook,
   Instagram,
-  Twitter,
   Phone,
   Mail,
   MapPin,
@@ -9,6 +8,22 @@ import {
 } from "lucide-react";
 import Link from "next/link";
 import Image from "next/image";
+
+function TikTokIcon({ size = 18, className = "" }: { size?: number; className?: string }) {
+  return (
+    <svg
+      xmlns="http://www.w3.org/2000/svg"
+      width={size}
+      height={size}
+      viewBox="0 0 24 24"
+      fill="currentColor"
+      className={className}
+      aria-hidden="true"
+    >
+      <path d="M16.6 5.82A4.83 4.83 0 0 1 13.45 3h-2.3v12.36a2.17 2.17 0 1 1-1.51-2.07V11a4.48 4.48 0 1 0 3.83 4.44V9.18a7.11 7.11 0 0 0 4.16 1.34V8.24a4.86 4.86 0 0 1-1.03-.12Z" />
+    </svg>
+  );
+}
 
 export default function Footer() {
   return (
@@ -47,7 +62,7 @@ export default function Footer() {
                 <h3 className="text-white font-black text-xl tracking-tight">
                   Rental Motor
                 </h3>
-                <p className="text-[#2563EB] font-bold text-xs uppercase tracking-widest">
+                <p className="font-black text-xl leading-none text-[#2563EB] tracking-tight">
                   Kukusan
                 </p>
               </div>
@@ -82,19 +97,34 @@ export default function Footer() {
               <p className="text-sm font-bold text-white">Ikuti Kami</p>
               <div className="flex gap-3">
                 {[
-                  { icon: Facebook, hover: "hover:bg-blue-600" },
+                  {
+                    icon: Facebook,
+                    hover: "hover:bg-blue-600",
+                    href: "https://www.facebook.com/kukusanrentalmotor?locale=id_ID",
+                    label: "Facebook",
+                  },
                   {
                     icon: Instagram,
                     hover:
                       "hover:bg-gradient-to-br hover:from-purple-600 hover:to-pink-600",
+                    href: "https://www.instagram.com/rentalmotorkukusan/",
+                    label: "Instagram",
                   },
-                  { icon: Twitter, hover: "hover:bg-blue-400" },
+                  {
+                    icon: TikTokIcon,
+                    hover: "hover:bg-black",
+                    href: "https://www.tiktok.com/@rentalmotorkukusan",
+                    label: "TikTok",
+                  },
                 ].map((social, i) => {
                   const Icon = social.icon;
                   return (
                     <a
                       key={i}
-                      href="#"
+                      href={social.href}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      aria-label={social.label}
                       className={`group w-11 h-11 bg-white/5 ${social.hover} backdrop-blur-sm rounded-2xl border border-white/10 flex items-center justify-center transition-all duration-300 hover:border-transparent hover:scale-110`}
                     >
                       <Icon
@@ -178,7 +208,9 @@ export default function Footer() {
             </h4>
             <div className="space-y-3">
               <a
-                href="tel:6282125901198"
+                href="https://wa.me/6282125901198"
+                target="_blank"
+                rel="noopener noreferrer"
                 className="group flex items-start gap-3 p-3 rounded-2xl bg-white/5 border border-white/10 hover:bg-white/10 hover:border-[#2563EB]/30 backdrop-blur-sm transition-all"
               >
                 <div className="w-10 h-10 bg-gradient-to-br from-[#2563EB]/20 to-[#2563EB]/10 rounded-xl flex items-center justify-center shrink-0">
@@ -193,7 +225,7 @@ export default function Footer() {
               </a>
 
               <a
-                href="mailto:rentalmotorkukusan@gmail.com"
+                href="mailto:kukusanrentalmotor@gmail.com"
                 className="group flex items-start gap-3 p-3 rounded-2xl bg-white/5 border border-white/10 hover:bg-white/10 hover:border-[#DC2626]/30 backdrop-blur-sm transition-all"
               >
                 <div className="w-10 h-10 bg-gradient-to-br from-[#DC2626]/20 to-[#DC2626]/10 rounded-xl flex items-center justify-center shrink-0">
@@ -204,12 +236,17 @@ export default function Footer() {
                     Email
                   </p>
                   <p className="text-xs font-medium text-white break-all">
-                    rentalmotorkukusan@gmail.com
+                    kukusanrentalmotor@gmail.com
                   </p>
                 </div>
               </a>
 
-              <div className="flex items-start gap-3 p-3 rounded-2xl bg-white/5 border border-white/10 backdrop-blur-sm">
+              <a
+                href="https://maps.app.goo.gl/sctXMMqpGsYUajrm9"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="group flex items-start gap-3 p-3 rounded-2xl bg-white/5 border border-white/10 hover:bg-white/10 hover:border-[#2563EB]/30 backdrop-blur-sm transition-all"
+              >
                 <div className="w-10 h-10 bg-gradient-to-br from-[#2563EB]/20 to-[#2563EB]/10 rounded-xl flex items-center justify-center shrink-0">
                   <MapPin size={16} className="text-[#2563EB]" />
                 </div>
@@ -217,12 +254,12 @@ export default function Footer() {
                   <p className="text-[10px] text-slate-500 mb-0.5 font-bold uppercase tracking-wider">
                     Alamat
                   </p>
-                  <p className="text-xs font-medium text-white leading-relaxed">
+                  <p className="text-xs font-medium text-white leading-relaxed hover:text-[#2563EB] transition-colors">
                     Jl. H. Moh. Alif I No.6, Kukusan, Kec. Beji, Kota Depok,
                     Jawa Barat 16425
                   </p>
                 </div>
-              </div>
+              </a>
             </div>
           </div>
         </div>

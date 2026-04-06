@@ -65,9 +65,9 @@ export default function Hero() {
 
             {/* Description */}
             <p className="text-lg leading-relaxed text-[#1a1a1a]/70 max-w-md font-medium">
-              Proses cepat, verifikasi aman, motor siap pakai.
+              Proses Cepat, verifikasi Aman, Motor Siap Pakai.
               <span className="block mt-2 text-[#2563EB] font-bold">
-                Solusi mudah transportasi anda!
+                Solusi Mudah Transportasi Anda!
               </span>
             </p>
 

@@ -4,18 +4,17 @@ import Link from 'next/link';
 import Image from 'next/image';
 import { usePathname, useRouter } from 'next/navigation';
 import { useState } from 'react';
-import { LayoutDashboard, ClipboardList, AlertCircle, Bike, DollarSign, UserCircle, Wrench, MessageSquare, Menu, X } from 'lucide-react';
+import { LayoutDashboard, ClipboardList, AlertCircle, Bike, DollarSign, UserCircle, Clock3, MessageSquare, Menu, X } from 'lucide-react';
 import { createClient } from '@/utils/supabase/client';
 
 const menuItems = [
   { href: '/dashboard', label: 'Dashboard', icon: <LayoutDashboard size={20} /> },
+  { href: '/dashboard/messages', label: 'Pesan', icon: <MessageSquare size={20} /> },
   { href: '/dashboard/bookings', label: 'Pesanan Masuk', icon: <ClipboardList size={20} /> },
   { href: '/dashboard/appeals', label: 'Banding Pemesanan', icon: <AlertCircle size={20} /> },
-  { href: '/dashboard/motors', label: 'Kelola Data Sewa', icon: <Bike size={20} /> },
-  { href: '/dashboard/manage-motors', label: 'Pengelolaan Data Motor', icon: <Wrench size={20} /> },
-  { href: '/dashboard/messages', label: 'Pesan', icon: <MessageSquare size={20} /> },
+  { href: '/dashboard/motors', label: 'Pengelolaan Data Sewa', icon: <Clock3 size={20} /> },
+  { href: '/dashboard/manage-motors', label: 'Pengelolaan Data Motor', icon: <Bike size={20} /> },
   { href: '/dashboard/finance', label: 'Pengelolaan Data Keuangan', icon: <DollarSign size={20} /> },
-  { href: '/dashboard/customers', label: 'Pengelolaan Data Pelanggan', icon: <UserCircle size={20} /> },
 ];
 
 interface SidebarProps {
