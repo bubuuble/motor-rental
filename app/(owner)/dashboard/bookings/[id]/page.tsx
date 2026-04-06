@@ -311,6 +311,73 @@ export default function BookingDetailPage({
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
         {/* Customer Info - Takes 2 columns */}
         <div className="lg:col-span-2 space-y-6">
+          {/* Order Details */}
+          <div className="bg-gradient-to-br from-blue-50 to-white backdrop-blur-sm p-8 rounded-3xl border-2 border-[#2563EB]/20 shadow-xl space-y-6 hover:shadow-2xl hover:shadow-[#2563EB]/10 transition-all">
+            <h3 className="font-black text-[#1a1a1a] text-lg flex items-center gap-3 pb-4 border-b-2 border-[#2563EB]/20">
+              <div className="w-10 h-10 rounded-2xl bg-gradient-to-br from-[#2563EB] to-[#3B82F6] flex items-center justify-center">
+                <Banknote size={20} className="text-white" strokeWidth={2.5} />
+              </div>
+              Detail Pesanan
+            </h3>
+            
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <div className="p-4 rounded-2xl bg-white border border-[#1a1a1a]/10">
+                <p className="text-xs font-bold text-[#1a1a1a]/40 uppercase tracking-widest mb-1">Tanggal Sewa</p>
+                <div className="flex items-center gap-2">
+                  <Calendar size={16} className="text-[#2563EB]" />
+                  <p className="font-black text-[#1a1a1a]">
+                    {new Date(booking.start_date).toLocaleDateString("id-ID", {
+                      day: "numeric",
+                      month: "long",
+                      year: "numeric"
+                    })} 
+                    {" "} - {" "} 
+                    {new Date(booking.end_date).toLocaleDateString("id-ID", {
+                      day: "numeric",
+                      month: "long",
+                      year: "numeric"
+                    })}
+                  </p>
+                </div>
+              </div>
+
+              <div className="p-4 rounded-2xl bg-white border border-[#1a1a1a]/10">
+                <p className="text-xs font-bold text-[#1a1a1a]/40 uppercase tracking-widest mb-1">Total Harga</p>
+                <div className="flex items-center gap-2">
+                  <Banknote size={16} className="text-green-600" />
+                  <p className="font-black text-green-600 text-lg">
+                    Rp {booking.total_price.toLocaleString("id-ID")}
+                  </p>
+                </div>
+              </div>
+            </div>
+            
+            {(booking.payment_method || booking.payment_proof_url) && (
+              <div className="p-4 rounded-2xl bg-white border border-[#1a1a1a]/10 flex flex-col md:flex-row md:items-center justify-between gap-4 mt-2">
+                <div>
+                  <p className="text-xs font-bold text-[#1a1a1a]/40 uppercase tracking-widest mb-1">Metode Pembayaran</p>
+                  <div className="flex items-center gap-2">
+                    <CreditCard size={16} className="text-[#1a1a1a]" />
+                    <p className="font-black text-[#1a1a1a] uppercase">
+                      {booking.payment_method || "-"}
+                    </p>
+                  </div>
+                </div>
+                
+                {booking.payment_proof_url && (
+                  <a 
+                    href={booking.payment_proof_url} 
+                    target="_blank" 
+                    rel="noopener noreferrer"
+                    className="inline-flex items-center gap-2 text-sm font-black text-[#2563EB] bg-[#2563EB]/10 px-4 py-2 rounded-xl hover:bg-[#2563EB]/20 transition-colors"
+                  >
+                    <FileText size={16} /> Lihat Bukti Transfer
+                  </a>
+                )}
+              </div>
+            )}
+          </div>
+
           {/* Basic Info */}
           <div className="bg-white/80 backdrop-blur-sm p-8 rounded-3xl border-2 border-[#1a1a1a] shadow-xl space-y-6 hover:shadow-2xl hover:shadow-[#DC2626]/10 transition-all">
             <div className="flex items-center gap-4 pb-4 border-b-2 border-[#1a1a1a]/10">

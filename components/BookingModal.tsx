@@ -193,8 +193,9 @@ export default function BookingModal({ motor, onClose }: BookingModalProps) {
     const getProfile = async () => {
       try {
         const {
-          data: { user },
-        } = await supabase.auth.getUser();
+          data: { session },
+        } = await supabase.auth.getSession();
+        const user = session?.user;
 
         if (!isMounted) return;
 
@@ -290,7 +291,6 @@ export default function BookingModal({ motor, onClose }: BookingModalProps) {
         rental_duration: rentalDuration,
         total_price: totalPrice,
         is_delivery: !!deliveryOngkir,
-        delivery_ongkir: deliveryOngkir,
         notes: bookingNotes,
         status: "Menunggu Konfirmasi",
         payment_method: paymentMethod,

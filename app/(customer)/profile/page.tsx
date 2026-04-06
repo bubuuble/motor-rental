@@ -72,8 +72,10 @@ export default function ProfilePage() {
     const fetchProfile = async () => {
       try {
         const {
-          data: { user },
-        } = await supabase.auth.getUser();
+          data: { session },
+        } = await supabase.auth.getSession();
+
+        const user = session?.user;
 
         if (!user) {
           router.push("/login");
@@ -81,11 +83,22 @@ export default function ProfilePage() {
         }
 
         if (user) {
-          const { data, error } = await supabase
+          let { data, error } = await supabase
             .from("profiles")
             .select("*")
             .eq("id", user.id)
             .single();
+
+          if (error && error.code === 'PGRST116') {
+            await new Promise(resolve => setTimeout(resolve, 1000));
+            const retry = await supabase
+              .from("profiles")
+              .select("*")
+              .eq("id", user.id)
+              .single();
+            data = retry.data;
+            error = retry.error;
+          }
 
           if (!error && data) {
             const typedProfile = data as Profile;
@@ -103,20 +116,21 @@ export default function ProfilePage() {
             .on(
               'postgres_changes',
               {
-                event: 'UPDATE',
+                event: '*',
                 schema: 'public',
                 table: 'profiles',
                 filter: `id=eq.${user.id}`,
               },
               (payload) => {
                 console.log('[REALTIME] Profile updated:', payload);
-                const updatedProfile = payload.new as Profile;
-                setProfile(updatedProfile);
-                setKtpUrl(updatedProfile.ktp_url);
-                setSimUrl(updatedProfile.sim_url);
-                setKtmUrl(updatedProfile.ktm_url);
-                setIsStudent(updatedProfile.is_student);
-                setIsApproved(updatedProfile.student_status_approved);
+                const newData = (payload.new || payload.old) as Profile;
+                if (!newData) return;
+                setProfile(newData);
+                setKtpUrl(newData.ktp_url);
+                setSimUrl(newData.sim_url);
+                setKtmUrl(newData.ktm_url);
+                setIsStudent(newData.is_student);
+                setIsApproved(newData.student_status_approved);
               }
             )
             .subscribe();
@@ -172,8 +186,9 @@ export default function ProfilePage() {
 
     try {
       const {
-        data: { user },
-      } = await supabase.auth.getUser();
+        data: { session },
+      } = await supabase.auth.getSession();
+      const user = session?.user;
       if (!user) throw new Error("User tidak ditemukan");
 
       const { error } = await supabase
@@ -211,12 +226,13 @@ export default function ProfilePage() {
     setUpdating(true);
     try {
       const {
-        data: { user },
-        error: userError,
-      } = await supabase.auth.getUser();
+        data: { session },
+        error: sessionError,
+      } = await supabase.auth.getSession();
+      const user = session?.user;
 
       console.log("[DEBUG] User ID:", user?.id);
-      console.log("[DEBUG] User Error:", userError);
+      console.log("[DEBUG] Session Error:", sessionError);
 
       if (!user) {
         console.error("[DEBUG] User not found");
