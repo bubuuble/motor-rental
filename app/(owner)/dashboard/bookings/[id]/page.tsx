@@ -27,6 +27,7 @@ import {
 } from "lucide-react";
 import Link from "next/link";
 import Image from "next/image";
+import { useSweetAlert } from "@/utils/useSweetAlert";
 
 interface BookingDetail {
   id: string;
@@ -78,6 +79,7 @@ export default function BookingDetailPage({
   const [deliveryDate, setDeliveryDate] = useState("");
   const [showStatusDropdown, setShowStatusDropdown] = useState(false);
   const supabase = useMemo(() => createClient(), []);
+  const swal = useSweetAlert();
 
   const fetchDetail = useCallback(async () => {
     try {
@@ -103,7 +105,7 @@ export default function BookingDetailPage({
 
   const handleReject = async () => {
     if (!reason.trim()) {
-      alert("Silakan isi alasan penolakan");
+      swal.warning('Alasan Diperlukan', 'Silakan isi alasan penolakan');
       return;
     }
     await supabase
@@ -116,7 +118,7 @@ export default function BookingDetailPage({
     setShowRejectModal(false);
     setReason("");
     await fetchDetail();
-    alert("Pesanan ditolak. Alasan telah dikirim ke customer.");
+    swal.success('Pesanan Ditolak', 'Pesanan ditolak. Alasan telah dikirim ke customer.');
   };
 
   const handleApproveOnly = async () => {
@@ -134,7 +136,7 @@ export default function BookingDetailPage({
 
   const handleSetDelivery = async () => {
     if (!deliveryDate) {
-      alert("Silakan isi jadwal pengiriman");
+      swal.warning('Jadwal Diperlukan', 'Silakan isi jadwal pengiriman');
       return;
     }
     if (!booking?.profiles) return;
@@ -155,23 +157,36 @@ export default function BookingDetailPage({
       `https://wa.me/${booking.profiles.phone.replace(/^0/, "62")}?text=${message}`,
       "_blank"
     );
+    swal.success('Jadwal Pengiriman Ditetapkan', 'Customer telah dihubungi via WhatsApp.');
   };
 
   const handleCompleteOrder = async () => {
-    if (
-      !confirm("Konfirmasi bahwa motor sudah dikembalikan dan order selesai?")
-    )
-      return;
+    const confirmed = await swal.confirm(
+      'Konfirmasi Penyelesaian Order',
+      'Konfirmasi bahwa motor sudah dikembalikan dan order selesai?',
+      'Ya, Selesaikan',
+      'Batal'
+    );
+    if (!confirmed) return;
+    
     await supabase.from("bookings").update({ status: "Selesai" }).eq("id", id);
     await fetchDetail();
-    alert("Order telah diselesaikan. Motor kembali tersedia.");
+    swal.success('Order Selesai', 'Order telah diselesaikan. Motor kembali tersedia.');
   };
 
   const handleManualStatus = async (newStatus: string) => {
     setShowStatusDropdown(false);
-    if (!confirm(`Ubah status order menjadi "${newStatus}"?`)) return;
+    const confirmed = await swal.confirm(
+      'Ubah Status Order',
+      `Ubah status order menjadi "${newStatus}"?`,
+      'Ya, Ubah',
+      'Batal'
+    );
+    if (!confirmed) return;
+    
     await supabase.from("bookings").update({ status: newStatus }).eq("id", id);
     await fetchDetail();
+    swal.success('Status Diubah', `Status order berhasil diubah menjadi "${newStatus}".`);
   };
 
   const ALL_STATUSES = [

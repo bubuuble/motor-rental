@@ -4,6 +4,7 @@ import { useEffect, useState, useMemo, useCallback } from 'react';
 import { createClient } from '@/utils/supabase/client';
 import { Loader2, CalendarClock, AlertTriangle, X, Send, RefreshCcw, CheckCircle } from 'lucide-react';
 import Link from 'next/link';
+import { useSweetAlert } from '@/utils/useSweetAlert';
 
 interface ActiveRental {
   id: string;
@@ -30,6 +31,7 @@ export default function RentalDataPage() {
   const [successMsg, setSuccessMsg] = useState('');
   const [filter, setFilter] = useState<'aktif' | 'semua'>('aktif');
   const supabase = useMemo(() => createClient(), []);
+  const swal = useSweetAlert();
 
   const fetchRentals = useCallback(async () => {
     setLoading(true);
@@ -49,7 +51,10 @@ export default function RentalDataPage() {
   const handleExtend = async () => {
     if (!selectedRental || !extendDays) return;
     const days = parseInt(extendDays);
-    if (isNaN(days) || days <= 0) { alert('Masukkan jumlah hari yang valid'); return; }
+    if (isNaN(days) || days <= 0) { 
+      swal.warning('Input Tidak Valid', 'Masukkan jumlah hari yang valid'); 
+      return; 
+    }
     setIsExtending(true);
     try {
       const currentEnd = new Date(selectedRental.end_date);
@@ -62,10 +67,13 @@ export default function RentalDataPage() {
       const msg = `Halo ${customerName}! 👋%0A%0ASewa motor *${selectedRental.motor_name}* Anda telah diperpanjang selama *${days} hari*.%0A%0ATanggal berakhir baru: *${newEndDate}*%0A%0ATerima kasih! 🙏`;
       if (phone) window.open(`https://wa.me/${phone}?text=${msg}`, '_blank');
       setSelectedRental(null); setExtendDays('7');
-      setSuccessMsg(`Perpanjangan berhasil! Masa sewa hingga ${newEndDate}`);
-      setTimeout(() => setSuccessMsg(''), 4000);
+      swal.success('Perpanjangan Berhasil', `Masa sewa hingga ${newEndDate}`);
       await fetchRentals();
-    } catch { alert('Gagal memperpanjang sewa.'); } finally { setIsExtending(false); }
+    } catch { 
+      swal.error('Gagal Memperpanjang', 'Gagal memperpanjang sewa. Coba lagi.');
+    } finally { 
+      setIsExtending(false); 
+    }
   };
 
   const almostExpired = rentals.filter(r => { const d = daysRemaining(r.end_date); return d <= 3 && d >= 0 && (r.status === 'Disetujui' || r.status === 'Motor Terkirim'); });

@@ -18,6 +18,7 @@ import {
   Instagram,
   FileText,
 } from "lucide-react";
+import { useSweetAlert } from "@/utils/useSweetAlert";
 
 interface CustomerProfile {
   id: string;
@@ -53,6 +54,7 @@ export default function CustomersManagement() {
     useState<CustomerProfile | null>(null);
   const [updatingStudent, setUpdatingStudent] = useState(false);
   const supabase = useMemo(() => createClient(), []);
+  const swal = useSweetAlert();
 
   const fetchCustomers = useCallback(async () => {
     setLoading(true);
@@ -138,11 +140,11 @@ export default function CustomersManagement() {
 
       if (error) throw error;
 
-      alert(`Status mahasiswa ${newStatus ? "disetujui" : "dibatalkan"}!`);
+      swal.success('Status Diperbarui', `Status mahasiswa ${newStatus ? "disetujui" : "dibatalkan"}!`);
       fetchCustomers(); // Refresh data
     } catch (err) {
       console.error("Error updating student status:", err);
-      alert("Gagal update");
+      swal.error('Gagal Update', 'Terjadi kesalahan saat memperbarui status.');
     } finally {
       setUpdatingStudent(false);
     }

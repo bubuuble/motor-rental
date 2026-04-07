@@ -4,6 +4,7 @@ import { useEffect, useState, useMemo, useCallback } from 'react';
 import { createClient } from '@/utils/supabase/client';
 import { Loader2, Bike, Calendar, RefreshCcw, User, CheckCircle } from 'lucide-react';
 import Link from 'next/link';
+import { useSweetAlert } from '@/utils/useSweetAlert';
 
 interface ActiveRentalMotor {
   motorId: string;
@@ -42,6 +43,7 @@ export default function PengelolaanSewMotor() {
   const [updatingBookingId, setUpdatingBookingId] = useState<string | null>(null);
   const [savedBookingId, setSavedBookingId] = useState<string | null>(null);
   const supabase = useMemo(() => createClient(), []);
+  const swal = useSweetAlert();
 
   const MOTOR_STATUSES = ['Tersedia', 'Disewa', 'Perbaikan'];
 
@@ -93,9 +95,10 @@ export default function PengelolaanSewMotor() {
       setMotorList(prev => prev.map(m =>
         m.motorId === motorId ? { ...m, motorStatus: newStatus } : m
       ));
+      swal.success('Status Diperbarui', `Status motor berhasil diubah ke ${newStatus}`);
     } else {
+      swal.error('Gagal Update', `Gagal: ${error.message} (code: ${error.code})`);
       console.error('Gagal update status motor:', error);
-      alert(`Gagal: ${error.message} (code: ${error.code})`);
     }
     setUpdatingMotorId(null);
   };

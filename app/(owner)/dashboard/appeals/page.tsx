@@ -3,6 +3,7 @@
 import { useEffect, useState, useMemo, useCallback } from 'react';
 import { createClient } from '@/utils/supabase/client';
 import { Check, X, Loader2, History } from 'lucide-react';
+import { useSweetAlert } from '@/utils/useSweetAlert';
 
 interface AppealBooking {
   id: string;
@@ -17,6 +18,7 @@ export default function AppealsPage() {
   const [appeals, setAppeals] = useState<AppealBooking[]>([]);
   const [loading, setLoading] = useState(true);
   const supabase = useMemo(() => createClient(), []);
+  const swal = useSweetAlert();
 
   const fetchAppeals = useCallback(async () => {
     setLoading(true);
@@ -47,8 +49,10 @@ export default function AppealsPage() {
       .update({ status: newStatus })
       .eq('id', id);
     if (!error) {
-      alert(`Banding telah ${newStatus === 'Disetujui' ? 'Diterima' : 'Ditolak Permanent'}`);
+      swal.success('Banding Diproses', `Banding telah ${newStatus === 'Disetujui' ? 'Diterima' : 'Ditolak Permanent'}`);
       void fetchAppeals();
+    } else {
+      swal.error('Gagal Memproses', 'Terjadi kesalahan saat memproses banding.');
     }
   };
 

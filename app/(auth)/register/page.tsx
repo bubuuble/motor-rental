@@ -6,6 +6,7 @@ import { useRouter } from 'next/navigation';
 import Link from 'next/link';
 import { User, Mail, Lock, Loader2, ArrowRight, CheckCircle2, Clock, Shield } from 'lucide-react';
 import Image from 'next/image';
+import { useSweetAlert } from '@/utils/useSweetAlert';
 
 export default function RegisterPage() {
   const [fullName, setFullName] = useState('');
@@ -16,6 +17,7 @@ export default function RegisterPage() {
   
   const router = useRouter();
   const supabase = createClient();
+  const swal = useSweetAlert();
 
   const handleRegister = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -35,13 +37,15 @@ export default function RegisterPage() {
 
     if (signUpError) {
       setError(signUpError.message);
+      swal.error('Registrasi Gagal', signUpError.message);
       setLoading(false);
       return;
     }
 
     if (data.user) {
-      alert('Registrasi Berhasil! Silakan cek email Anda untuk verifikasi (jika aktif) atau silakan login.');
-      router.push('/login');
+      swal.success('Registrasi Berhasil', 'Silakan cek email Anda untuk verifikasi atau langsung login.', () => {
+        router.push('/login');
+      });
     }
   };
 

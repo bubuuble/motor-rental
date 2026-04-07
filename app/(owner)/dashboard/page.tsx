@@ -3,6 +3,7 @@
 import { Bike, Key, Wrench, ClipboardList, Loader2, TrendingUp, X, SlidersHorizontal } from 'lucide-react';
 import { useEffect, useState, useMemo, useCallback } from 'react';
 import { createClient } from '@/utils/supabase/client';
+import { useSweetAlert } from '@/utils/useSweetAlert';
 
 interface StatCardProps {
   icon: React.ReactNode;
@@ -73,6 +74,7 @@ export default function DashboardOverview() {
   const [endDate, setEndDate] = useState<string>('');
   const [customDate, setCustomDate] = useState<string>(() => getTodayIso());
   const supabase = useMemo(() => createClient(), []);
+  const swal = useSweetAlert();
 
   const filterBookingsByDate = useCallback((bookings: DetailedBooking[], dateStr: string) => {
     const filtered = bookings.filter((booking) => {
@@ -166,7 +168,7 @@ export default function DashboardOverview() {
   const handleApplyDateRange = () => {
     if (!startDate || !endDate) return;
     if (new Date(endDate) < new Date(startDate)) {
-      alert('Tanggal akhir tidak boleh lebih kecil dari tanggal mulai.');
+      swal.warning('Rentang Tanggal Tidak Valid', 'Tanggal akhir tidak boleh lebih kecil dari tanggal mulai.');
       return;
     }
 

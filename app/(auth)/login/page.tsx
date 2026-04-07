@@ -5,6 +5,7 @@ import { useRouter } from 'next/navigation'
 import { Mail, Lock, ArrowRight, MapPin, Shield, User } from 'lucide-react'
 import Image from 'next/image'
 import Link from 'next/link'
+import { useSweetAlert } from '@/utils/useSweetAlert'
 
 export default function LoginPage() {
   const [identifier, setIdentifier] = useState('')  // email or username
@@ -13,6 +14,7 @@ export default function LoginPage() {
   const [error, setError] = useState<string | null>(null)
   const router = useRouter()
   const supabase = createClient()
+  const swal = useSweetAlert()
 
   const isEmail = (value: string) => value.includes('@')
 
@@ -33,13 +35,17 @@ export default function LoginPage() {
         })
         const result = await res.json() as { email?: string; error?: string }
         if (!res.ok || !result.email) {
-          setError(result.error || 'Username tidak ditemukan')
+          const errorMsg = result.error || 'Username tidak ditemukan'
+          setError(errorMsg)
+          swal.error('Username Tidak Ditemukan', errorMsg)
           setLoading(false)
           return
         }
         email = result.email
       } catch {
-        setError('Gagal mengecek username. Coba lagi.')
+        const errorMsg = 'Gagal mengecek username. Coba lagi.'
+        setError(errorMsg)
+        swal.error('Kesalahan', errorMsg)
         setLoading(false)
         return
       }
@@ -48,7 +54,9 @@ export default function LoginPage() {
     const { data, error: signInError } = await supabase.auth.signInWithPassword({ email, password })
 
     if (signInError) {
-      setError('Email/username atau password salah')
+      const errorMsg = 'Email/username atau password salah'
+      setError(errorMsg)
+      swal.error('Login Gagal', errorMsg)
       setLoading(false)
       return
     }
@@ -59,11 +67,13 @@ export default function LoginPage() {
       .eq('id', data.user.id)
       .single()
 
-    if (profile?.role === 'owner') {
-      router.push('/dashboard')
-    } else {
-      router.push('/')
-    }
+    swal.success('Login Berhasil', 'Selamat datang kembali!', () => {
+      if (profile?.role === 'owner') {
+        router.push('/dashboard')
+      } else {
+        router.push('/')
+      }
+    })
   }
 
   const inputIsEmail = isEmail(identifier)

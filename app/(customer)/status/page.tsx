@@ -4,6 +4,8 @@ import { useEffect, useState, useMemo } from 'react';
 import { createClient } from '@/utils/supabase/client';
 import { Clock, Loader2, Calendar, CreditCard, CheckCircle2, XCircle, Package, Flag, Bike, Upload, Check, Banknote } from 'lucide-react';
 import Image from 'next/image';
+import { useSweetAlert } from '@/utils/useSweetAlert';
+import Swal from 'sweetalert2';
 
 // 1. Interface Lengkap sesuai tabel bookings di Supabase
 interface Booking {
@@ -33,6 +35,7 @@ export default function StatusPage() {
   const [expandedId, setExpandedId] = useState<string | null>(null);
   const [uploadingProof, setUploadingProof] = useState<string | null>(null);
   const [paymentProofFile, setPaymentProofFile] = useState<File | null>(null);
+  const swal = useSweetAlert();
   
   const formatDate = (dateString?: string) => {
     if (!dateString) return "";
@@ -52,7 +55,7 @@ export default function StatusPage() {
       .eq('id', bookingId);
     
     if (!error) {
-      alert('Banding berhasil diajukan. Menunggu tinjauan owner.');
+      swal.success('Banding Berhasil Diajukan', 'Menunggu tinjauan owner.');
       // Refresh data
       const { data: { user } } = await supabase.auth.getUser();
       if (user) {
@@ -63,13 +66,13 @@ export default function StatusPage() {
         setBookings((data as Booking[]) || []);
       }
     } else {
-      alert('Gagal mengajukan banding. Silakan coba lagi.');
+      swal.error('Gagal Mengajukan Banding', 'Silakan coba lagi.');
     }
   };
 
   const uploadPaymentProof = async (bookingId: string) => {
     if (!paymentProofFile) {
-      alert('Pilih file bukti pembayaran terlebih dahulu.');
+      swal.warning('File Tidak Dipilih', 'Pilih file bukti pembayaran terlebih dahulu.');
       return;
     }
 
@@ -86,7 +89,7 @@ export default function StatusPage() {
         .upload(fileName, paymentProofFile);
 
       if (upError) {
-        alert('Gagal upload bukti pembayaran: ' + upError.message);
+        swal.error('Gagal Upload', 'Gagal upload bukti pembayaran: ' + upError.message);
         return;
       }
 
@@ -109,12 +112,35 @@ export default function StatusPage() {
         .order('created_at', { ascending: false });
       setBookings((data as Booking[]) || []);
       setPaymentProofFile(null);
-      alert('Bukti pembayaran berhasil diupload!');
+      swal.success('Upload Berhasil', 'Bukti pembayaran berhasil diupload!');
     } catch (err) {
       console.error(err);
-      alert('Terjadi kesalahan saat upload.');
+      swal.error('Terjadi Kesalahan', 'Terjadi kesalahan saat upload.');
     } finally {
       setUploadingProof(null);
+    }
+  };
+
+  const submitAppealWithAsk = async (bookingId: string) => {
+    const { value: appealReason } = await Swal.fire({
+      icon: 'question',
+      title: 'Ajukan Banding',
+      input: 'textarea',
+      inputLabel: 'Alasan Banding',
+      inputPlaceholder: 'Masukkan alasan banding Anda...',
+      inputAttributes: {
+        minlength: '10',
+        'aria-label': 'Alasan Banding'
+      },
+      showCancelButton: true,
+      confirmButtonText: 'Ajukan',
+      cancelButtonText: 'Batal',
+      confirmButtonColor: '#dc2626',
+      cancelButtonColor: '#6b7280',
+    });
+    
+    if (appealReason && appealReason.trim().length >= 10) {
+      await submitAppeal(bookingId, appealReason);
     }
   };
 
@@ -355,10 +381,7 @@ export default function StatusPage() {
                       <p className="text-sm italic text-red-600">&quot;{item.rejection_reason}&quot;</p>
                       
                       <button 
-                        onClick={() => {
-                          const appeal = prompt('Masukkan alasan banding Anda:');
-                          if(appeal) submitAppeal(item.id, appeal);
-                        }}
+                        onClick={() => submitAppealWithAsk(item.id)}
                         className="text-xs bg-red-600 text-white px-4 py-2 rounded-lg font-bold hover:bg-red-700 transition"
                       >
                         Ajukan Banding
@@ -473,7 +496,7 @@ export default function StatusPage() {
                                   const file = e.target.files?.[0];
                                   if (file) {
                                     if (file.size > 5 * 1024 * 1024) {
-                                      alert('Ukuran file maksimal 5MB');
+                                      swal.warning('File Terlalu Besar', 'Ukuran file maksimal 5MB');
                                       return;
                                     }
                                     setPaymentProofFile(file);

@@ -3,6 +3,7 @@
 import { useEffect, useState, useMemo, useCallback } from 'react';
 import { createClient } from '@/utils/supabase/client';
 import { Plus, Wrench, Loader2, X, Save, AlertTriangle, CheckCircle, ChevronUp, ImageIcon } from 'lucide-react';
+import { useSweetAlert } from '@/utils/useSweetAlert';
 
 interface MotorDB {
   id: string;
@@ -59,6 +60,7 @@ export default function PengelolaanDataMotor() {
   // Inline service status update tracking
   const [updatingStatusId, setUpdatingStatusId] = useState<string | null>(null);
   const supabase = useMemo(() => createClient(), []);
+  const swal = useSweetAlert();
 
   const fetchMotors = useCallback(async () => {
     setLoading(true);
@@ -151,12 +153,11 @@ export default function PengelolaanDataMotor() {
 
       if (error) throw error;
 
-      setSuccessMsg(`Motor "${editForm.name}" berhasil diperbarui!`);
-      setTimeout(() => setSuccessMsg(''), 4000);
+      swal.success('Motor Diperbarui', `Motor "${editForm.name}" berhasil diperbarui!`);
       setEditingMotor(null);
       await fetchMotors();
     } catch {
-      alert('Gagal menyimpan perubahan. Coba lagi.');
+      swal.error('Gagal Menyimpan', 'Gagal menyimpan perubahan. Coba lagi.');
     } finally {
       setIsSaving(false);
     }
@@ -165,7 +166,7 @@ export default function PengelolaanDataMotor() {
   // Save new motor
   const handleAddMotor = async () => {
     if (!addForm.name || !addForm.brand || !addForm.year || !addForm.daily_price) {
-      alert('Harap isi: Nama, Brand, Tahun, dan Harga Harian');
+      swal.warning('Data Tidak Lengkap', 'Harap isi: Nama, Brand, Tahun, dan Harga Harian');
       return;
     }
     setIsAdding(true);
@@ -188,15 +189,14 @@ export default function PengelolaanDataMotor() {
         rating: 5.0,
       });
       if (error) throw error;
+      swal.success('Motor Ditambahkan', `Motor "${addForm.name}" berhasil ditambahkan!`);
       setAddForm(EMPTY_FORM);
       setAddImageFile(null);
       setAddImagePreview(null);
       setShowAddForm(false);
-      setSuccessMsg(`Motor "${addForm.name}" berhasil ditambahkan!`);
-      setTimeout(() => setSuccessMsg(''), 4000);
       await fetchMotors();
     } catch {
-      alert('Gagal menambah motor.');
+      swal.error('Gagal Menambah Motor', 'Gagal menambah motor. Coba lagi.');
     } finally {
       setIsAdding(false);
     }
