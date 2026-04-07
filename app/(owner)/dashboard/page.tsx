@@ -326,7 +326,24 @@ export default function DashboardOverview() {
 
   useEffect(() => {
     fetchDashboardData();
-  }, [fetchDashboardData]);
+
+    // Subscribe to real-time changes on bookings table
+    const bookingsChannel = supabase
+      .channel('dashboard-bookings-changes')
+      .on(
+        'postgres_changes',
+        { event: '*', schema: 'public', table: 'bookings' },
+        () => {
+          // Trigger refetch when any booking changes
+          fetchDashboardData();
+        }
+      )
+      .subscribe();
+
+    return () => {
+      void supabase.removeChannel(bookingsChannel);
+    };
+  }, [fetchDashboardData, supabase]);
 
   if (loading) return <div className="p-20 flex justify-center"><Loader2 className="animate-spin text-blue-600" size={40} /></div>;
 

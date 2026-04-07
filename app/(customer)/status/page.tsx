@@ -2,7 +2,7 @@
 
 import { useEffect, useState, useMemo } from 'react';
 import { createClient } from '@/utils/supabase/client';
-import { Clock, Loader2, Calendar, CreditCard, Info, CheckCircle2, XCircle, Package, Flag, Bike, Upload, Check, Banknote } from 'lucide-react';
+import { Clock, Loader2, Calendar, CreditCard, CheckCircle2, XCircle, Package, Flag, Bike, Upload, Check, Banknote } from 'lucide-react';
 import Image from 'next/image';
 
 // 1. Interface Lengkap sesuai tabel bookings di Supabase
@@ -120,18 +120,28 @@ export default function StatusPage() {
 
   useEffect(() => {
     const fetchBookings = async () => {
-      const { data: { user } } = await supabase.auth.getUser();
-      if (user) {
-        const { data } = await supabase
-          .from('bookings')
-          .select('*')
-          .eq('user_id', user.id)
-          .order('created_at', { ascending: false });
-        
-        setBookings((data as Booking[]) || []);
+      // 1. Destructure the error object
+      const { data: { user }, error } = await supabase.auth.getUser();
+      
+      // 2. Clear invalid sessions or redirect gracefully if the token is invalid
+      if (error || !user) {
+        console.warn("Session expired or invalid:", error?.message);
+        // Optional: Redirect to login or show an empty state
+        window.location.href = '/login'; 
+        return; // Stop execution
       }
+
+      // 3. User is valid, fetch bookings
+      const { data } = await supabase
+        .from('bookings')
+        .select('*')
+        .eq('user_id', user.id)
+        .order('created_at', { ascending: false });
+      
+      setBookings((data as Booking[]) || []);
       setLoading(false);
     };
+
     fetchBookings();
   }, [supabase]);
 
@@ -381,11 +391,11 @@ export default function StatusPage() {
                     )}
                   </div>
 
-                  {/* QRIS Payment Section — after delivery */}
-                  {item.payment_method === 'qris' && ['Motor Terkirim', 'Selesai'].includes(item.status) && (
+                  {/* Payment Proof Section — after delivery */}
+                  {(item.payment_method === 'qris' || item.payment_method === 'cash') && ['Motor Terkirim', 'Selesai'].includes(item.status) && (
                     <div className="border-t border-slate-200 pt-6 space-y-4">
                       <h4 className="font-bold text-slate-900 flex items-center gap-2">
-                        <CreditCard size={18} className="text-blue-600" /> Pembayaran QRIS
+                        <CreditCard size={18} className="text-blue-600" /> Bukti Pembayaran
                       </h4>
 
                       {item.payment_proof_url ? (
@@ -408,20 +418,22 @@ export default function StatusPage() {
                         /* Upload section */
                         <div className="space-y-4">
                           {/* QR Code */}
-                          <div className="flex flex-col items-center gap-3 bg-white p-5 rounded-2xl border border-slate-200">
-                            <div className="relative w-52 h-52 bg-white rounded-2xl overflow-hidden">
-                              <Image
-                                src="/images/qris.png"
-                                alt="QRIS"
-                                fill
-                                className="object-contain"
-                              />
+                          {item.payment_method === 'qris' && (
+                            <div className="flex flex-col items-center gap-3 bg-white p-5 rounded-2xl border border-slate-200">
+                              <div className="relative w-52 h-52 bg-white rounded-2xl overflow-hidden">
+                                <Image
+                                  src="/images/qris.png"
+                                  alt="QRIS"
+                                  fill
+                                  className="object-contain"
+                                />
+                              </div>
+                              <div className="text-center">
+                                <p className="text-sm font-bold text-slate-700">Scan QRIS untuk membayar</p>
+                                <p className="text-xl font-black text-blue-600 mt-1">Rp {item.total_price.toLocaleString()}</p>
+                              </div>
                             </div>
-                            <div className="text-center">
-                              <p className="text-sm font-bold text-slate-700">Scan QRIS untuk membayar</p>
-                              <p className="text-xl font-black text-blue-600 mt-1">Rp {item.total_price.toLocaleString()}</p>
-                            </div>
-                          </div>
+                          )}
 
                           {/* Upload Proof */}
                           <div className="space-y-2">
