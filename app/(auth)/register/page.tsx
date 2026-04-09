@@ -14,6 +14,8 @@ export default function RegisterPage() {
   const [password, setPassword] = useState('');
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [isOtpSent, setIsOtpSent] = useState(false);
+  const [otpCode, setOtpCode] = useState('');
   
   const router = useRouter();
   const supabase = createClient();
@@ -43,10 +45,37 @@ export default function RegisterPage() {
     }
 
     if (data.user) {
-      swal.success('Registrasi Berhasil', 'Silakan cek email Anda untuk verifikasi atau langsung login.', () => {
-        router.push('/login');
-      });
+      setIsOtpSent(true);
+      swal.success('OTP Terkirim', 'Silakan cek email Anda untuk kode OTP 6 digit.');
     }
+    setLoading(false);
+  };
+
+  const handleVerifyOtp = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setLoading(true);
+    setError(null);
+
+    const { data, error: verifyError } = await supabase.auth.verifyOtp({
+      email,
+      token: otpCode,
+      type: 'signup'
+    });
+
+    if (verifyError) {
+      setError(verifyError.message);
+      swal.error('Verifikasi Gagal', verifyError.message);
+      setLoading(false);
+      return;
+    }
+
+    swal.success('Registrasi Berhasil', 'Email Anda telah diverifikasi.', () => {
+      if (data.session) {
+        router.push('/');
+      } else {
+        router.push('/login');
+      }
+    });
   };
 
   return (
@@ -134,74 +163,123 @@ export default function RegisterPage() {
               </div>
             )}
 
-            <form onSubmit={handleRegister} className="space-y-5">
-              {/* Name Input */}
-              <div className="space-y-2">
-                <label className="text-xs font-bold text-[#1a1a1a]/80 uppercase tracking-wide">Nama Lengkap</label>
-                <div className="relative">
-                  <User className="absolute left-4 top-1/2 -translate-y-1/2 text-[#1a1a1a]/40" size={18} />
-                  <input 
-                    type="text" 
-                    placeholder="John Doe" 
-                    value={fullName}
-                    onChange={(e) => setFullName(e.target.value)}
-                    className="w-full pl-12 pr-4 py-4 bg-[#FAF9F6] border-2 border-[#1a1a1a]/10 rounded-2xl outline-none focus:border-[#2563EB] focus:bg-[#2563EB]/5 transition-all text-sm font-medium"
-                    required
-                  />
+            {!isOtpSent ? (
+              <form onSubmit={handleRegister} className="space-y-5">
+                {/* Name Input */}
+                <div className="space-y-2">
+                  <label className="text-xs font-bold text-[#1a1a1a]/80 uppercase tracking-wide">Nama Lengkap</label>
+                  <div className="relative">
+                    <User className="absolute left-4 top-1/2 -translate-y-1/2 text-[#1a1a1a]/40" size={18} />
+                    <input 
+                      type="text" 
+                      placeholder="John Doe" 
+                      value={fullName}
+                      onChange={(e) => setFullName(e.target.value)}
+                      className="w-full pl-12 pr-4 py-4 bg-[#FAF9F6] border-2 border-[#1a1a1a]/10 rounded-2xl outline-none focus:border-[#2563EB] focus:bg-[#2563EB]/5 transition-all text-sm font-medium"
+                      required
+                    />
+                  </div>
                 </div>
-              </div>
 
-              {/* Email Input */}
-              <div className="space-y-2">
-                <label className="text-xs font-bold text-[#1a1a1a]/80 uppercase tracking-wide">Email</label>
-                <div className="relative">
-                  <Mail className="absolute left-4 top-1/2 -translate-y-1/2 text-[#1a1a1a]/40" size={18} />
-                  <input 
-                    type="email" 
-                    placeholder="email@anda.com" 
-                    value={email}
-                    onChange={(e) => setEmail(e.target.value)}
-                    className="w-full pl-12 pr-4 py-4 bg-[#FAF9F6] border-2 border-[#1a1a1a]/10 rounded-2xl outline-none focus:border-[#2563EB] focus:bg-[#2563EB]/5 transition-all text-sm font-medium"
-                    required
-                  />
+                {/* Email Input */}
+                <div className="space-y-2">
+                  <label className="text-xs font-bold text-[#1a1a1a]/80 uppercase tracking-wide">Email</label>
+                  <div className="relative">
+                    <Mail className="absolute left-4 top-1/2 -translate-y-1/2 text-[#1a1a1a]/40" size={18} />
+                    <input 
+                      type="email" 
+                      placeholder="email@anda.com" 
+                      value={email}
+                      onChange={(e) => setEmail(e.target.value)}
+                      className="w-full pl-12 pr-4 py-4 bg-[#FAF9F6] border-2 border-[#1a1a1a]/10 rounded-2xl outline-none focus:border-[#2563EB] focus:bg-[#2563EB]/5 transition-all text-sm font-medium"
+                      required
+                    />
+                  </div>
                 </div>
-              </div>
 
-              {/* Password Input */}
-              <div className="space-y-2">
-                <label className="text-xs font-bold text-[#1a1a1a]/80 uppercase tracking-wide">Password</label>
-                <div className="relative">
-                  <Lock className="absolute left-4 top-1/2 -translate-y-1/2 text-[#1a1a1a]/40" size={18} />
-                  <input 
-                    type="password" 
-                    placeholder="••••••••" 
-                    value={password}
-                    onChange={(e) => setPassword(e.target.value)}
-                    className="w-full pl-12 pr-4 py-4 bg-[#FAF9F6] border-2 border-[#1a1a1a]/10 rounded-2xl outline-none focus:border-[#2563EB] focus:bg-[#2563EB]/5 transition-all text-sm font-medium"
-                    required
-                  />
+                {/* Password Input */}
+                <div className="space-y-2">
+                  <label className="text-xs font-bold text-[#1a1a1a]/80 uppercase tracking-wide">Password</label>
+                  <div className="relative">
+                    <Lock className="absolute left-4 top-1/2 -translate-y-1/2 text-[#1a1a1a]/40" size={18} />
+                    <input 
+                      type="password" 
+                      placeholder="••••••••" 
+                      value={password}
+                      onChange={(e) => setPassword(e.target.value)}
+                      className="w-full pl-12 pr-4 py-4 bg-[#FAF9F6] border-2 border-[#1a1a1a]/10 rounded-2xl outline-none focus:border-[#2563EB] focus:bg-[#2563EB]/5 transition-all text-sm font-medium"
+                      required
+                    />
+                  </div>
                 </div>
-              </div>
 
-              {/* Submit Button */}
-              <button 
-                type="submit" 
-                disabled={loading}
-                className="w-full bg-[#1a1a1a] hover:bg-[#1a1a1a]/90 text-white py-4 rounded-2xl font-black transition-all flex items-center justify-center gap-2 mt-8 group disabled:opacity-50 disabled:cursor-not-allowed shadow-lg hover:shadow-xl"
-              >
-                {loading ? (
-                  <>
-                    <Loader2 className="animate-spin" size={20} />
-                    Membuat Akun...
-                  </>
-                ) : (
-                  <>
-                    Buat Akun Sekarang
-                    <ArrowRight size={20} className="group-hover:translate-x-1 transition-transform" />
-                  </>
-                )}
-              </button>
-            </form>
+                {/* Submit Button */}
+                <button 
+                  type="submit" 
+                  disabled={loading}
+                  className="w-full bg-[#1a1a1a] hover:bg-[#1a1a1a]/90 text-white py-4 rounded-2xl font-black transition-all flex items-center justify-center gap-2 mt-8 group disabled:opacity-50 disabled:cursor-not-allowed shadow-lg hover:shadow-xl"
+                >
+                  {loading ? (
+                    <>
+                      <Loader2 className="animate-spin" size={20} />
+                      Membuat Akun...
+                    </>
+                  ) : (
+                    <>
+                      Buat Akun Sekarang
+                      <ArrowRight size={20} className="group-hover:translate-x-1 transition-transform" />
+                    </>
+                  )}
+                </button>
+              </form>
+            ) : (
+              <form onSubmit={handleVerifyOtp} className="space-y-5">
+                <div className="space-y-2">
+                  <label className="text-xs font-bold text-[#1a1a1a]/80 uppercase tracking-wide">Kode OTP</label>
+                  <div className="relative">
+                    <Shield className="absolute left-4 top-1/2 -translate-y-1/2 text-[#1a1a1a]/40" size={18} />
+                    <input 
+                      type="text" 
+                      placeholder="Masukkan 6 digit kode OTP" 
+                      value={otpCode}
+                      onChange={(e) => setOtpCode(e.target.value)}
+                      className="w-full pl-12 pr-4 py-4 bg-[#FAF9F6] border-2 border-[#1a1a1a]/10 rounded-2xl outline-none focus:border-[#2563EB] focus:bg-[#2563EB]/5 transition-all text-sm font-medium tracking-[0.25em]"
+                      maxLength={6}
+                      required
+                    />
+                  </div>
+                  <p className="text-xs text-[#1a1a1a]/60">
+                    Cek inbox atau folder spam di email <b>{email}</b> Anda.
+                  </p>
+                </div>
+
+                <button 
+                  type="submit" 
+                  disabled={loading || otpCode.length !== 6}
+                  className="w-full bg-[#2563EB] hover:bg-[#1d4ed8] text-white py-4 rounded-2xl font-black transition-all flex items-center justify-center gap-2 mt-8 group disabled:opacity-50 disabled:cursor-not-allowed shadow-lg hover:shadow-xl"
+                >
+                  {loading ? (
+                    <>
+                      <Loader2 className="animate-spin" size={20} />
+                      Verifikasi...
+                    </>
+                  ) : (
+                    <>
+                      Verifikasi OTP
+                      <CheckCircle2 size={20} />
+                    </>
+                  )}
+                </button>
+                
+                <button
+                  type="button"
+                  onClick={() => setIsOtpSent(false)}
+                  className="w-full text-[#1a1a1a]/60 text-sm font-bold mt-4 hover:text-[#1a1a1a] transition-colors"
+                >
+                  Kembali ke Pendaftaran
+                </button>
+              </form>
+            )}
 
             {/* Login Link */}
             <div className="mt-8 pt-6 border-t border-[#1a1a1a]/10 text-center text-sm text-[#1a1a1a]/60">
