@@ -52,6 +52,7 @@ export default function BookingModal({ motor, onClose }: BookingModalProps) {
   const [submitting, setSubmitting] = useState(false);
   const [paymentMethod, setPaymentMethod] = useState<'cash' | 'qris'>('cash');
   const [profile, setProfile] = useState<UserProfile | null>(null);
+  const [loadingProfile, setLoadingProfile] = useState(true);
   const [startDate, setStartDate] = useState("");
   const [endDate, setEndDate] = useState("");
   const [bookingTime, setBookingTime] = useState("");
@@ -208,7 +209,7 @@ export default function BookingModal({ motor, onClose }: BookingModalProps) {
         }
 
         if (user) {
-          const { data } = await supabase
+          const { data, error } = await supabase
             .from("profiles")
             .select("*")
             .eq("id", user.id)
@@ -221,6 +222,8 @@ export default function BookingModal({ motor, onClose }: BookingModalProps) {
             console.log("[DEBUG] is_student:", data.is_student);
             console.log("[DEBUG] student_status_approved:", data.student_status_approved);
             setProfile(data as UserProfile);
+          } else {
+            setProfile({} as UserProfile);
           }
         }
       } catch (error) {
@@ -228,6 +231,11 @@ export default function BookingModal({ motor, onClose }: BookingModalProps) {
           return;
         }
         console.error("Failed to load profile:", error);
+        if (isMounted) setProfile({} as UserProfile);
+      } finally {
+        if (isMounted) {
+          setLoadingProfile(false);
+        }
       }
     };
 
@@ -317,16 +325,15 @@ export default function BookingModal({ motor, onClose }: BookingModalProps) {
 
   // Logic tombol "Lanjutkan ke Data Pribadi"
   const handleNextStep = () => {
-    const p = profile;
-    
-    // Jika data profil belum selesai dimuat
-    if (!p) {
+    if (loadingProfile) {
       alert("Sedang memuat data profil, mohon tunggu sebentar...");
       return;
     }
 
+    const p = profile;
+    
     // Validasi field core yang wajib ada
-    if (!p.ktp_url || !p.sim_url || !p.address || !p.phone || !p.full_name || !p.kelurahan || !p.kecamatan || !p.city || !p.province) {
+    if (!p || !p.ktp_url || !p.sim_url || !p.address || !p.phone || !p.full_name || !p.kelurahan || !p.kecamatan || !p.city || !p.province) {
       alert(
         "Data profil Anda belum lengkap. Silakan lengkapi seluruh data (KTP/SIM/Alamat lengkap) terlebih dahulu di halaman profil.",
       );

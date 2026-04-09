@@ -193,8 +193,7 @@ export default function ProfilePage() {
 
       const { error } = await supabase
         .from("profiles")
-        .update(updates)
-        .eq("id", user.id);
+        .upsert({ id: user.id, ...updates });
 
       if (error) throw error;
 
@@ -267,8 +266,7 @@ export default function ProfilePage() {
 
       const { error: updateError } = await supabase
         .from("profiles")
-        .update({ [`${type}_url`]: publicUrl })
-        .eq("id", user.id);
+        .upsert({ id: user.id, [`${type}_url`]: publicUrl });
 
       console.log("[DEBUG] Profile update error:", updateError);
 
