@@ -3,11 +3,12 @@
 import { useState, useEffect, useMemo } from "react";
 import { X, ArrowLeft, Info, Loader2, ExternalLink, CreditCard, Banknote } from "lucide-react";
 import { createClient } from "@/utils/supabase/client";
+import { useSweetAlert } from "@/utils/useSweetAlert";
 import { useRouter } from "next/navigation";
 import Image from "next/image";
 
 // Definisikan Interface untuk Profile
-interface UserProfile {
+export interface UserProfile {
   full_name: string | null;
   phone: string | null;
   address: string | null;
@@ -42,17 +43,19 @@ export interface Motor {
 interface BookingModalProps {
   motor: Motor;
   onClose: () => void;
+  initialProfile?: UserProfile | null;
 }
 
-export default function BookingModal({ motor, onClose }: BookingModalProps) {
+export default function BookingModal({ motor, onClose, initialProfile }: BookingModalProps) {
   const supabase = useMemo(() => createClient(), []);
+  const swal = useSweetAlert();
   const router = useRouter();
   const [step, setStep] = useState(1);
   const [bookingNotes, setBookingNotes] = useState("");
   const [submitting, setSubmitting] = useState(false);
   const [paymentMethod, setPaymentMethod] = useState<'cash' | 'qris'>('cash');
-  const [profile, setProfile] = useState<UserProfile | null>(null);
-  const [loadingProfile, setLoadingProfile] = useState(true);
+  const [profile, setProfile] = useState<UserProfile | null>(initialProfile ?? null);
+  const [loadingProfile, setLoadingProfile] = useState(!initialProfile);
   const [startDate, setStartDate] = useState("");
   const [endDate, setEndDate] = useState("");
   const [bookingTime, setBookingTime] = useState("");
@@ -187,8 +190,10 @@ export default function BookingModal({ motor, onClose }: BookingModalProps) {
   const totalPrice =
     rentalPrice - studentDiscount + ((deliveryMethod === 'diantar' && deliveryOngkir) ? deliveryOngkir : 0) + depositFee;
 
-  // Fetch data profil saat modal dibuka
+  // Fetch profile only if not provided via prop (e.g. unauthenticated user opens modal)
   useEffect(() => {
+    if (initialProfile !== undefined) return; // already have data from server
+
     let isMounted = true;
 
     const getProfile = async () => {
@@ -202,7 +207,7 @@ export default function BookingModal({ motor, onClose }: BookingModalProps) {
 
         // Redirect to login if not authenticated
         if (!user) {
-          alert("Silakan login terlebih dahulu untuk melakukan pemesanan");
+          swal.warning("Login Diperlukan", "Silakan login terlebih dahulu untuk melakukan pemesanan");
           router.push("/login");
           onClose();
           return;
@@ -247,15 +252,14 @@ export default function BookingModal({ motor, onClose }: BookingModalProps) {
   }, [supabase, router, onClose]);
 
   const handleBooking = async () => {
-    // Validasi sederhana sebelum kirim
     if (!startDate || !endDate || !bookingTime) {
-      alert("Mohon lengkapi tanggal dan jam sewa di langkah pertama.");
+      swal.warning("Lengkapi Data", "Mohon lengkapi tanggal dan jam sewa di langkah pertama.");
       setStep(1);
       return;
     }
 
     if (!bookingNotes || bookingNotes.trim() === "") {
-      alert("Mohon isi alasan pemesanan.");
+      swal.warning("Alasan Kosong", "Mohon isi alasan pemesanan.");
       setStep(1);
       return;
     }
@@ -266,8 +270,9 @@ export default function BookingModal({ motor, onClose }: BookingModalProps) {
         data: { user },
       } = await supabase.auth.getUser();
       if (!user) {
-        alert("Silakan login terlebih dahulu");
+        swal.warning("Login Diperlukan", "Silakan login terlebih dahulu");
         router.push("/login");
+        setSubmitting(false);
         return;
       }
 
@@ -279,10 +284,12 @@ export default function BookingModal({ motor, onClose }: BookingModalProps) {
         .single();
 
       if (!profile?.ktp_url || !profile?.sim_url) {
-        alert(
-          "Mohon lengkapi foto KTP dan SIM di halaman Profil sebelum memesan.",
+        swal.warning(
+          "Dokumen Belum Lengkap",
+          "Mohon lengkapi foto KTP dan SIM di halaman Profil sebelum memesan."
         );
         router.push("/profile");
+        setSubmitting(false);
         return;
       }
 
@@ -306,17 +313,17 @@ export default function BookingModal({ motor, onClose }: BookingModalProps) {
 
       if (error) throw error;
 
-      alert(
-        "Pemesanan Berhasil dikirim! Tim kami akan segera menghubungi Anda.",
+      swal.success(
+        "Pemesanan Terkirim! 🎉",
+        "Tim kami akan segera menghubungi Anda untuk konfirmasi."
       );
       onClose();
       router.push("/status");
     } catch (err: unknown) {
-      // Type guard untuk mengecek error
       if (err instanceof Error) {
-        alert(err.message);
+        swal.error("Pemesanan Gagal", err.message);
       } else {
-        alert("Terjadi kesalahan yang tidak diketahui");
+        swal.error("Pemesanan Gagal", "Terjadi kesalahan yang tidak diketahui");
       }
     } finally {
       setSubmitting(false);
@@ -326,7 +333,7 @@ export default function BookingModal({ motor, onClose }: BookingModalProps) {
   // Logic tombol "Lanjutkan ke Data Pribadi"
   const handleNextStep = () => {
     if (loadingProfile) {
-      alert("Sedang memuat data profil, mohon tunggu sebentar...");
+      swal.info("Mohon Tunggu", "Sedang memuat data profil, mohon tunggu sebentar...");
       return;
     }
 
@@ -334,22 +341,23 @@ export default function BookingModal({ motor, onClose }: BookingModalProps) {
     
     // Validasi field core yang wajib ada
     if (!p || !p.ktp_url || !p.sim_url || !p.address || !p.phone || !p.full_name || !p.kelurahan || !p.kecamatan || !p.city || !p.province) {
-      alert(
-        "Data profil Anda belum lengkap. Silakan lengkapi seluruh data (KTP/SIM/Alamat lengkap) terlebih dahulu di halaman profil.",
+      swal.warning(
+        "Profil Belum Lengkap",
+        "Silakan lengkapi seluruh data (KTP/SIM/Alamat lengkap) terlebih dahulu di halaman profil."
       );
       router.push("/profile");
       return;
     }
 
     if (!bookingNotes || bookingNotes.trim() === "") {
-      alert("Mohon isi alasan pemesanan.");
+      swal.warning("Alasan Kosong", "Mohon isi alasan pemesanan.");
       return;
     }
 
     if (rentalType === "weekend" && startDate) {
       const startDay = new Date(startDate).getDay();
       if (startDay !== 6) {
-        alert("Paket Weekend wajib dimulai hari Sabtu (periode Sabtu–Senin).");
+        swal.warning("Hari Tidak Sesuai", "Paket Weekend wajib dimulai hari Sabtu (periode Sabtu–Senin).");
         return;
       }
     }
@@ -403,6 +411,7 @@ export default function BookingModal({ motor, onClose }: BookingModalProps) {
                     src={motor.image || "/next.svg"}
                     alt={motor.name}
                     fill
+                    sizes="96px"
                     className="object-contain p-2"
                   />
                 </div>

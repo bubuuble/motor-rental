@@ -2,15 +2,16 @@
 
 import { useState } from "react";
 import MotorCard, { Motor } from "@/components/MotorCard";
-import BookingModal from "@/components/BookingModal";
+import BookingModal, { UserProfile } from "@/components/BookingModal";
 import { Bike } from "lucide-react";
 
 interface MotorsContentProps {
   motors: Motor[];
   rentedMotorIds: string[];
+  initialProfile: UserProfile | null;
 }
 
-export default function MotorsContent({ motors, rentedMotorIds }: MotorsContentProps) {
+export default function MotorsContent({ motors, rentedMotorIds, initialProfile }: MotorsContentProps) {
   const [selectedMotor, setSelectedMotor] = useState<Motor | null>(null);
 
   if (motors.length === 0) {
@@ -42,7 +43,11 @@ export default function MotorsContent({ motors, rentedMotorIds }: MotorsContentP
       </div>
 
       {selectedMotor && (
-        <BookingModal motor={selectedMotor} onClose={() => setSelectedMotor(null)} />
+        <BookingModal
+          motor={selectedMotor}
+          initialProfile={initialProfile}
+          onClose={() => setSelectedMotor(null)}
+        />
       )}
     </>
   );

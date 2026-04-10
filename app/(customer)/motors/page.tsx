@@ -3,14 +3,17 @@ import { ArrowLeft, Bike } from "lucide-react";
 import Link from "next/link";
 import MotorsContent from "./MotorsContent";
 import type { Motor } from "@/components/MotorCard";
+import type { UserProfile } from "@/components/BookingModal";
 
 export const revalidate = 60; // revalidate cache every 60 seconds
 
 export default async function MotorsPage() {
   const supabase = await createClient();
 
-  // Fetch motors and rented status in parallel on the server
-  const [motorsRes, rentedRes] = await Promise.all([
+  // Fetch user profile + motors + rented status in parallel on the server
+  const { data: { user } } = await supabase.auth.getUser();
+
+  const [motorsRes, rentedRes, profileRes] = await Promise.all([
     supabase
       .from("motors")
       .select("id, name, description, daily_price, weekly_price, monthly_price, weekend_price, transmission, fuel, rating, image_url, year, cc, brand")
@@ -19,6 +22,9 @@ export default async function MotorsPage() {
       .from("bookings")
       .select("motor_id")
       .in("status", ["Disetujui", "Motor Terkirim"]),
+    user
+      ? supabase.from("profiles").select("*").eq("id", user.id).single()
+      : Promise.resolve({ data: null, error: null }),
   ]);
 
   const motors: Motor[] = (motorsRes.data ?? []).map((m) => ({
@@ -94,7 +100,7 @@ export default async function MotorsPage() {
 
       {/* Grid */}
       <div className="max-w-6xl mx-auto px-6 pb-16">
-        <MotorsContent motors={motors} rentedMotorIds={rentedMotorIds} />
+        <MotorsContent motors={motors} rentedMotorIds={rentedMotorIds} initialProfile={profileRes.data as UserProfile | null} />
       </div>
     </div>
   );

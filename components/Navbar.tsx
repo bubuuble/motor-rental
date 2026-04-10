@@ -105,8 +105,9 @@ export default function Navbar() {
   }, [supabase]);
 
   const handleLogout = async () => {
-    await supabase.auth.signOut();
     setDropdownOpen(false);
+    await supabase.auth.signOut();
+    router.refresh(); // invalidate server-side cache so Server Components re-run with cleared session
     router.push("/login");
   };
 
@@ -154,6 +155,7 @@ export default function Navbar() {
                   src="/images/logo.png"
                   alt="Rental Motor Kukusan Logo"
                   fill
+                  sizes="48px"
                   className="object-contain p-1.5"
                 />
               </div>
