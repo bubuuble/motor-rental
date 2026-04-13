@@ -1,10 +1,10 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { createClient } from '@/utils/supabase/client';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
-import { User, Mail, Lock, Loader2, ArrowRight, CheckCircle2, Clock, Shield } from 'lucide-react';
+import { User, Mail, Lock, Loader2, ArrowRight, CheckCircle2, Clock, Shield, Eye, EyeOff } from 'lucide-react';
 import Image from 'next/image';
 import { useSweetAlert } from '@/utils/useSweetAlert';
 
@@ -16,6 +16,17 @@ export default function RegisterPage() {
   const [error, setError] = useState<string | null>(null);
   const [isOtpSent, setIsOtpSent] = useState(false);
   const [otpCode, setOtpCode] = useState('');
+  const [resendCooldown, setResendCooldown] = useState(0);
+  const [showPassword, setShowPassword] = useState(false);
+  const [passwordTouched, setPasswordTouched] = useState(false);
+
+  const passwordRules = {
+    minLength: password.length >= 8,
+    hasUpper: /[A-Z]/.test(password),
+    hasLower: /[a-z]/.test(password),
+    hasSymbol: /[^A-Za-z0-9]/.test(password),
+  };
+  const isPasswordValid = Object.values(passwordRules).every(Boolean);
   
   const router = useRouter();
   const supabase = createClient();
@@ -23,6 +34,11 @@ export default function RegisterPage() {
 
   const handleRegister = async (e: React.FormEvent) => {
     e.preventDefault();
+    if (!isPasswordValid) {
+      setPasswordTouched(true);
+      swal.warning('Password Tidak Valid', 'Pastikan password memenuhi semua kriteria keamanan.');
+      return;
+    }
     setLoading(true);
     setError(null);
 
@@ -46,6 +62,7 @@ export default function RegisterPage() {
 
     if (data.user) {
       setIsOtpSent(true);
+      setResendCooldown(60);
       swal.success('OTP Terkirim', 'Silakan cek email Anda untuk kode OTP 6 digit.');
     }
     setLoading(false);
@@ -71,12 +88,35 @@ export default function RegisterPage() {
 
     swal.success('Registrasi Berhasil', 'Email Anda telah diverifikasi.', () => {
       if (data.session) {
+        router.refresh();
         router.push('/');
       } else {
         router.push('/login');
       }
     });
   };
+
+  const handleResendOtp = async () => {
+    setLoading(true);
+    const { error } = await supabase.auth.resend({
+      type: 'signup',
+      email,
+    });
+    if (error) {
+      swal.error('Gagal Mengirim Ulang', error.message);
+    } else {
+      setResendCooldown(60);
+      swal.success('OTP Dikirim Ulang', `Kode baru telah dikirim ke ${email}.`);
+    }
+    setLoading(false);
+  };
+
+  // Countdown timer for resend cooldown
+  useEffect(() => {
+    if (resendCooldown <= 0) return;
+    const timer = setTimeout(() => setResendCooldown((c) => c - 1), 1000);
+    return () => clearTimeout(timer);
+  }, [resendCooldown]);
 
   return (
     <div className="min-h-screen flex flex-col lg:flex-row bg-white">
@@ -202,22 +242,63 @@ export default function RegisterPage() {
                   <label className="text-xs font-bold text-[#1a1a1a]/80 uppercase tracking-wide">Password</label>
                   <div className="relative">
                     <Lock className="absolute left-4 top-1/2 -translate-y-1/2 text-[#1a1a1a]/40" size={18} />
-                    <input 
-                      type="password" 
-                      placeholder="••••••••" 
+                    <input
+                      type={showPassword ? 'text' : 'password'}
+                      placeholder="••••••••"
                       value={password}
-                      onChange={(e) => setPassword(e.target.value)}
-                      className="w-full pl-12 pr-4 py-4 bg-[#FAF9F6] border-2 border-[#1a1a1a]/10 rounded-2xl outline-none focus:border-[#2563EB] focus:bg-[#2563EB]/5 transition-all text-sm font-medium"
+                      onChange={(e) => { setPassword(e.target.value); setPasswordTouched(true); }}
+                      className={`w-full pl-12 pr-12 py-4 bg-[#FAF9F6] border-2 rounded-2xl outline-none transition-all text-sm font-medium ${
+                        passwordTouched && !isPasswordValid
+                          ? 'border-red-300 focus:border-red-400'
+                          : passwordTouched && isPasswordValid
+                          ? 'border-green-400 focus:border-green-500'
+                          : 'border-[#1a1a1a]/10 focus:border-[#2563EB] focus:bg-[#2563EB]/5'
+                      }`}
                       required
                     />
+                    <button
+                      type="button"
+                      onClick={() => setShowPassword((v) => !v)}
+                      className="absolute right-4 top-1/2 -translate-y-1/2 text-[#1a1a1a]/30 hover:text-[#1a1a1a]/70 transition-colors"
+                      tabIndex={-1}
+                    >
+                      {showPassword ? <EyeOff size={18} /> : <Eye size={18} />}
+                    </button>
                   </div>
+
+                  {/* Password checklist */}
+                  {passwordTouched && (
+                    <div className="grid grid-cols-2 gap-1.5 mt-2">
+                      {([
+                        { key: 'minLength', label: 'Min. 8 karakter' },
+                        { key: 'hasUpper',  label: 'Huruf besar (A-Z)' },
+                        { key: 'hasLower',  label: 'Huruf kecil (a-z)' },
+                        { key: 'hasSymbol', label: 'Simbol (!@#$...)' },
+                      ] as const).map(({ key, label }) => (
+                        <div key={key} className={`flex items-center gap-1.5 text-xs font-semibold ${
+                          passwordRules[key] ? 'text-green-600' : 'text-[#1a1a1a]/40'
+                        }`}>
+                          <div className={`w-3.5 h-3.5 rounded-full flex items-center justify-center shrink-0 ${
+                            passwordRules[key] ? 'bg-green-500' : 'bg-[#1a1a1a]/10'
+                          }`}>
+                            {passwordRules[key] && (
+                              <svg viewBox="0 0 10 10" className="w-2 h-2" fill="none">
+                                <path d="M2 5l2.5 2.5L8 3" stroke="white" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" />
+                              </svg>
+                            )}
+                          </div>
+                          {label}
+                        </div>
+                      ))}
+                    </div>
+                  )}
                 </div>
 
                 {/* Submit Button */}
-                <button 
-                  type="submit" 
+                <button
+                  type="submit"
                   disabled={loading}
-                  className="w-full bg-[#1a1a1a] hover:bg-[#1a1a1a]/90 text-white py-4 rounded-2xl font-black transition-all flex items-center justify-center gap-2 mt-8 group disabled:opacity-50 disabled:cursor-not-allowed shadow-lg hover:shadow-xl"
+                  className="w-full bg-[#1a1a1a] hover:bg-[#1a1a1a]/90 text-white py-4 rounded-2xl font-black transition-all flex items-center justify-center gap-2 mt-6 group disabled:opacity-50 disabled:cursor-not-allowed shadow-lg hover:shadow-xl"
                 >
                   {loading ? (
                     <>
@@ -270,11 +351,30 @@ export default function RegisterPage() {
                     </>
                   )}
                 </button>
-                
+
+                {/* Resend OTP */}
+                <div className="text-center mt-4">
+                  {resendCooldown > 0 ? (
+                    <p className="text-sm text-[#1a1a1a]/40 font-bold">
+                      Kirim ulang OTP dalam{' '}
+                      <span className="text-[#2563EB] tabular-nums">{resendCooldown}s</span>
+                    </p>
+                  ) : (
+                    <button
+                      type="button"
+                      onClick={handleResendOtp}
+                      disabled={loading}
+                      className="text-sm text-[#2563EB] font-bold hover:underline disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+                    >
+                      Tidak menerima email? Kirim ulang OTP
+                    </button>
+                  )}
+                </div>
+
                 <button
                   type="button"
                   onClick={() => setIsOtpSent(false)}
-                  className="w-full text-[#1a1a1a]/60 text-sm font-bold mt-4 hover:text-[#1a1a1a] transition-colors"
+                  className="w-full text-[#1a1a1a]/60 text-sm font-bold mt-2 hover:text-[#1a1a1a] transition-colors"
                 >
                   Kembali ke Pendaftaran
                 </button>
