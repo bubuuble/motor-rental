@@ -229,10 +229,14 @@ export default function ProfilePage() {
       console.time("[PROFILE-SAVE] Upsert ke database");
       const { error } = await supabase
         .from("profiles")
-        .upsert({ id: user.id, ...updates });
+        .upsert({ 
+          id: user.id, 
+          email: user.email,
+          ...updates 
+        });
       console.timeEnd("[PROFILE-SAVE] Upsert ke database");
 
-      if (error) throw error;
+      if (error) throw new Error(error.message);
       console.log("[PROFILE-SAVE] Data berhasil disimpan ke database");
 
       setProfile((prev) => (prev ? { ...prev, ...updates } : null));
@@ -312,7 +316,7 @@ export default function ProfilePage() {
         data: uploadData,
       });
 
-      if (uploadError) throw uploadError;
+      if (uploadError) throw new Error(uploadError.message);
 
       const {
         data: { publicUrl },
@@ -331,7 +335,11 @@ export default function ProfilePage() {
 
       const { error: updateError, data: updateData } = await supabase
         .from("profiles")
-        .upsert({ id: user.id, [columnName]: publicUrl });
+        .upsert({ 
+          id: user.id, 
+          email: user.email,
+          [columnName]: publicUrl 
+        });
 
       console.timeEnd("[PROFILE-UPLOAD] Update profile record");
       console.log("[PROFILE-UPLOAD] Database update result:", {
@@ -340,7 +348,7 @@ export default function ProfilePage() {
         data: updateData,
       });
 
-      if (updateError) throw updateError;
+      if (updateError) throw new Error(updateError.message);
 
       console.timeEnd("[PROFILE-UPLOAD] Total upload time");
       const typeLabel = type === "ktm" ? "KTM" : type.toUpperCase();

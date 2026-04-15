@@ -132,7 +132,7 @@ export default function ProfileClient({
         .update(updates)
         .eq("id", profile.id);
 
-      if (error) throw error;
+      if (error) throw new Error(error.message);
 
       setProfile((prev) => (prev ? { ...prev, ...updates } : prev));
       swal.success("Profil Diperbarui", "Data diri kamu berhasil disimpan.");
