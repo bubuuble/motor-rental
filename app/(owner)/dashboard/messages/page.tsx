@@ -44,33 +44,35 @@ export default function MessagesPage() {
   }, [supabase]);
 
   // Fetch all customers
-  const fetchCustomers = useCallback(async () => {
-    const { data } = await supabase
-      .from('profiles')
-      .select('id, full_name, email, phone')
-      .eq('role', 'customer')
-      .order('full_name');
-    if (data) setCustomers(data as CustomerProfile[]);
-    setLoading(false);
+  useEffect(() => { 
+    let ignore = false;
+    const fetchCustomers = async () => {
+      const { data } = await supabase
+        .from('profiles')
+        .select('id, full_name, email, phone')
+        .eq('role', 'customer')
+        .order('full_name');
+      if (data && !ignore) setCustomers(data as CustomerProfile[]);
+      if (!ignore) setLoading(false);
+    };
+    void fetchCustomers();
+    return () => { ignore = true; };
   }, [supabase]);
 
-  useEffect(() => { fetchCustomers(); }, [fetchCustomers]);
-
-  // Fetch messages for selected customer (initial load only)
-  const fetchMessages = useCallback(async (customerId: string, owId: string) => {
-    const { data } = await supabase
-      .from('messages')
-      .select('id, sender_id, receiver_id, content, created_at')
-      .or(`and(sender_id.eq.${owId},receiver_id.eq.${customerId}),and(sender_id.eq.${customerId},receiver_id.eq.${owId})`)
-      .order('created_at', { ascending: true });
-    if (data) setMessages(data as Message[]);
-  }, [supabase]);
-
-  // Subscribe to realtime when customer is selected
+  // Fetch messages for selected customer and Subscribe to realtime
   useEffect(() => {
     if (!selectedCustomer || !ownerId) return;
 
-    setMessages([]);
+    let ignore = false;
+    const fetchMessages = async (customerId: string, owId: string) => {
+      const { data } = await supabase
+        .from('messages')
+        .select('id, sender_id, receiver_id, content, created_at')
+        .or(`and(sender_id.eq.${owId},receiver_id.eq.${customerId}),and(sender_id.eq.${customerId},receiver_id.eq.${owId})`)
+        .order('created_at', { ascending: true });
+      if (data && !ignore) setMessages(data as Message[]);
+    };
+
     void fetchMessages(selectedCustomer.id, ownerId);
 
     const channel = supabase
@@ -94,8 +96,11 @@ export default function MessagesPage() {
       )
       .subscribe();
 
-    return () => { void supabase.removeChannel(channel); };
-  }, [selectedCustomer, ownerId, supabase, fetchMessages]);
+    return () => { 
+      ignore = true;
+      void supabase.removeChannel(channel); 
+    };
+  }, [selectedCustomer, ownerId, supabase]);
 
   const sendMessage = async () => {
     if (!newMessage.trim() || !selectedCustomer || !ownerId || sending) return;

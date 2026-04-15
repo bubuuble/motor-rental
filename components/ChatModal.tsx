@@ -48,18 +48,18 @@ export default function ChatModal({ onClose }: { onClose: () => void }) {
     void init();
   }, [supabase]);
 
-  // Fetch initial messages once both IDs are ready
-  const fetchMessages = useCallback(async (uid: string, owId: string) => {
-    const { data } = await supabase
-      .from('messages')
-      .select('id, sender_id, content, created_at')
-      .or(`and(sender_id.eq.${uid},receiver_id.eq.${owId}),and(sender_id.eq.${owId},receiver_id.eq.${uid})`)
-      .order('created_at', { ascending: true });
-    if (data) setMessages(data as Msg[]);
-  }, [supabase]);
-
   useEffect(() => {
     if (!currentUserId || !ownerId) return;
+
+    let ignore = false;
+    const fetchMessages = async (uid: string, owId: string) => {
+      const { data } = await supabase
+        .from('messages')
+        .select('id, sender_id, content, created_at')
+        .or(`and(sender_id.eq.${uid},receiver_id.eq.${owId}),and(sender_id.eq.${owId},receiver_id.eq.${uid})`)
+        .order('created_at', { ascending: true });
+      if (data && !ignore) setMessages(data as Msg[]);
+    };
 
     void fetchMessages(currentUserId, ownerId);
 
@@ -86,8 +86,11 @@ export default function ChatModal({ onClose }: { onClose: () => void }) {
       )
       .subscribe();
 
-    return () => { void supabase.removeChannel(channel); };
-  }, [currentUserId, ownerId, supabase, fetchMessages]);
+    return () => { 
+      ignore = true;
+      void supabase.removeChannel(channel); 
+    };
+  }, [currentUserId, ownerId, supabase]);
 
   const sendMessage = async () => {
     if (!newMessage.trim() || !currentUserId || !ownerId || sending) return;

@@ -249,7 +249,7 @@ export default function BookingModal({ motor, onClose, initialProfile }: Booking
     return () => {
       isMounted = false;
     };
-  }, [supabase, router, onClose]);
+  }, [supabase, router, onClose, initialProfile, swal]);
 
   const handleBooking = async () => {
     if (!startDate || !endDate || !bookingTime) {
