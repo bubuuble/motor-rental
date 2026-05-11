@@ -10,17 +10,55 @@ export default function Hero() {
       <div className="max-w-7xl mx-auto px-6 pt-14 sm:pt-16 lg:pt-20 pb-8 sm:pb-12 lg:pb-16 relative z-10">
         <div className="grid lg:grid-cols-2 gap-10 lg:gap-16 items-center lg:items-start">
           {/* Content */}
-          <div className="space-y-8 animate-in slide-in-from-left duration-700">
-            {/* Badge */}
-            <div className="inline-flex items-center gap-2 bg-gradient-to-r from-[#2563EB]/10 to-[#2563EB]/5 border border-[#2563EB]/20 px-4 py-2 rounded-full backdrop-blur-sm">
-              <Zap className="w-4 h-4 text-[#2563EB]" fill="#2563EB" />
-              <span className="text-xs font-bold tracking-wider uppercase text-[#1a1a1a]">
-                Rental Terpercaya
-              </span>
+          <div className="space-y-5 animate-in slide-in-from-left duration-700">
+            {/* Location + Badge */}
+            <div className="flex flex-col items-start gap-0">
+              <a
+                href="https://maps.app.goo.gl/sctXMMqpGsYUajrm9"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="inline-flex items-center gap-2 rounded-full border border-[#1a1a1a]/10 bg-white px-4 py-2 text-sm font-semibold text-[#1a1a1a] shadow-sm transition-all hover:border-[#2563EB]/30 hover:bg-[#2563EB]/5 hover:shadow-md cursor-pointer"
+              >
+                <span className="relative flex h-5 w-5 items-center justify-center">
+                  <svg
+                    viewBox="0 0 24 24"
+                    className="h-5 w-5 drop-shadow-[0_2px_4px_rgba(239,68,68,0.22)]"
+                    fill="none"
+                    aria-hidden="true"
+                  >
+                    <defs>
+                      <linearGradient id="pin-body-gradient" x1="7" y1="4" x2="17" y2="20" gradientUnits="userSpaceOnUse">
+                        <stop offset="0%" stopColor="#FCA5A5" />
+                        <stop offset="45%" stopColor="#EF4444" />
+                        <stop offset="100%" stopColor="#B91C1C" />
+                      </linearGradient>
+                      <radialGradient id="pin-highlight" cx="0" cy="0" r="1" gradientUnits="userSpaceOnUse" gradientTransform="translate(10.1 8.7) rotate(45) scale(4.8 4.8)">
+                        <stop offset="0%" stopColor="#FFFFFF" stopOpacity="0.9" />
+                        <stop offset="55%" stopColor="#FFFFFF" stopOpacity="0.25" />
+                        <stop offset="100%" stopColor="#FFFFFF" stopOpacity="0" />
+                      </radialGradient>
+                    </defs>
+
+                    <path
+                      d="M12 22c2.2-2.7 6.5-7.1 6.5-11.4A6.5 6.5 0 1 0 5.5 10.6C5.5 14.9 9.8 19.3 12 22Z"
+                      fill="url(#pin-body-gradient)"
+                    />
+                    <path
+                      d="M12 18.1c1.7-2 4.5-5 4.5-7.7A4.5 4.5 0 1 0 7.5 10.4c0 2.7 2.8 5.7 4.5 7.7Z"
+                      fill="#FFFFFF"
+                      fillOpacity="0.14"
+                    />
+                    <circle cx="12" cy="10.5" r="3.2" fill="url(#pin-highlight)" />
+                    <circle cx="12" cy="10.5" r="2.1" fill="#FFFFFF" fillOpacity="0.95" />
+                    <circle cx="12" cy="10.5" r="1.1" fill="#F43F5E" />
+                  </svg>
+                </span>
+                <span>Kota Depok</span>
+              </a>
             </div>
 
             {/* Heading */}
-            <div className="space-y-4">
+            <div className="space-y-2 -mt-1">
               <div className="relative pb-16 sm:pb-20 lg:pb-0 lg:static">
                 <div className="absolute -right-2 top-1/2 -translate-y-1/2 w-[72%] max-w-[270px] opacity-45 pointer-events-none lg:hidden">
                   <Image
