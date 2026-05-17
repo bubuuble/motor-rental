@@ -7,10 +7,21 @@ export default function Hero() {
   return (
     <section className="relative min-h-[72vh] lg:min-h-[90vh] overflow-hidden bg-white">
 
-      <div className="max-w-7xl mx-auto px-6 pt-14 sm:pt-16 lg:pt-20 pb-8 sm:pb-12 lg:pb-16 relative z-10">
-        <div className="grid lg:grid-cols-2 gap-10 lg:gap-16 items-center lg:items-start">
+      <div className="max-w-7xl mx-auto px-6 pt-6 sm:pt-8 lg:pt-10 pb-8 sm:pb-12 lg:pb-16 relative z-10">
+        <div className="grid lg:grid-cols-2 gap-10 lg:gap-16 items-start relative">
           {/* Content */}
-          <div className="space-y-5 animate-in slide-in-from-left duration-700">
+          <div className="space-y-3 sm:space-y-4 animate-in slide-in-from-left duration-700 relative z-10">
+            {/* Mobile Background Image */}
+            <div className="absolute -right-0 sm:-right-4 top-8 sm:top-6 w-[220px] sm:w-[300px] md:w-[380px] opacity-40 sm:opacity-45 lg:hidden pointer-events-none -z-10">
+              <Image
+                src="/images/rentalbaru1.png"
+                alt="Motor Background"
+                width={800}
+                height={800}
+                className="w-full h-auto"
+                priority
+              />
+            </div>
             {/* Location + Badge */}
             <div className="flex flex-col items-start gap-0">
               <a
@@ -58,18 +69,8 @@ export default function Hero() {
             </div>
 
             {/* Heading */}
-            <div className="space-y-2 -mt-1">
-              <div className="relative pb-16 sm:pb-20 lg:pb-0 lg:static">
-                <div className="absolute -right-2 top-1/2 -translate-y-1/2 w-[72%] max-w-[270px] opacity-45 pointer-events-none lg:hidden">
-                  <Image
-                    src="/images/banner baru.png"
-                    alt="Motor"
-                    width={700}
-                    height={560}
-                    className="w-full h-auto"
-                    priority
-                  />
-                </div>
+            <div className="space-y-2 -mt-3 sm:-mt-2">
+              <div className="relative pb-16 sm:pb-20 lg:pb-0 lg:static overflow-visible">
 
                 <h1 className="relative z-10 max-w-[68%] text-6xl sm:text-7xl md:text-8xl font-black leading-[0.9] tracking-tight text-[#1a1a1a] lg:max-w-none">
                   Sewa
@@ -155,29 +156,29 @@ export default function Hero() {
           </div>
 
           {/* Image */}
-          <div className="hidden lg:block relative animate-in slide-in-from-right duration-700 animation-delay-300 lg:self-start">
-            <div className="relative transform hover:scale-105 transition-transform duration-500 lg:-mt-2">
-              <Image
-                src="/images/banner baru.png"
+          <div className="hidden lg:block relative animate-in slide-in-from-right duration-700 animation-delay-300 lg:self-start -mt-8">
+            <div className="relative transform hover:scale-105 transition-transform duration-500 lg:-mt-4">
+                <Image
+                  src="/images/rentalbaru1.png"
                 alt="Motor"
-                width={1000}
+                width={800}
                 height={800}
-                className="w-full h-auto max-w-[620px] ml-auto relative z-10"
+                className="w-full h-auto max-w-[280px] sm:max-w-[380px] md:max-w-[500px] lg:max-w-[620px] ml-auto relative z-10"
                 priority
               />
             </div>
 
             {/* Floating Card */}
-            <div className="absolute bottom-12 -left-4 bg-white p-6 rounded-3xl shadow-xl border border-[#1a1a1a]/5 animate-in zoom-in duration-700 animation-delay-1000 hover:scale-105 transition-transform">
-              <div className="flex items-center gap-4">
-                <div className="w-12 h-12 rounded-full bg-gradient-to-br from-[#2563EB] to-[#3B82F6] flex items-center justify-center">
-                  <BadgeDollarSign className="w-6 h-6 text-white" />
+            <div className="absolute bottom-8 sm:bottom-12 -left-2 sm:-left-4 bg-white p-4 sm:p-6 rounded-2xl sm:rounded-3xl shadow-lg sm:shadow-xl border border-[#1a1a1a]/5 animate-in zoom-in duration-700 animation-delay-1000 hover:scale-105 transition-transform">
+              <div className="flex items-center gap-3 sm:gap-4">
+                <div className="w-10 sm:w-12 h-10 sm:h-12 rounded-full bg-gradient-to-br from-[#2563EB] to-[#3B82F6] flex items-center justify-center flex-shrink-0">
+                  <BadgeDollarSign className="w-5 sm:w-6 h-5 sm:h-6 text-white" />
                 </div>
                 <div>
-                  <div className="text-xs font-bold text-[#1a1a1a]/60 uppercase tracking-wider">
+                  <div className="text-[8px] sm:text-xs font-bold text-[#1a1a1a]/60 uppercase tracking-wider">
                     Biaya sewa mulai dari
                   </div>
-                  <div className="text-2xl font-black text-[#1a1a1a]">
+                  <div className="text-lg sm:text-2xl font-black text-[#1a1a1a]">
                     Rp 70K/hari
                   </div>
                 </div>
