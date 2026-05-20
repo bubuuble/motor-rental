@@ -7,14 +7,14 @@ export default function Hero() {
   return (
     <section className="relative min-h-[72vh] lg:min-h-[90vh] overflow-hidden bg-white">
 
-      <div className="max-w-7xl mx-auto px-6 pt-6 sm:pt-8 lg:pt-10 pb-8 sm:pb-12 lg:pb-16 relative z-10">
+      <div className="max-w-7xl mx-auto px-6 pt-5 sm:pt-8 lg:pt-10 pb-6 sm:pb-12 lg:pb-16 relative z-10">
         <div className="grid lg:grid-cols-2 gap-10 lg:gap-16 items-start relative">
           {/* Content */}
-          <div className="space-y-3 sm:space-y-4 animate-in slide-in-from-left duration-700 relative z-10">
+          <div className="space-y-2 sm:space-y-4 animate-in slide-in-from-left duration-700 relative z-10">
             {/* Mobile Background Image */}
             <div className="absolute -right-0 sm:-right-4 top-8 sm:top-6 w-[220px] sm:w-[300px] md:w-[380px] opacity-40 sm:opacity-45 lg:hidden pointer-events-none -z-10">
               <Image
-                src="/images/rentalbaru1.png"
+                src="/images/rentalwarna.png"
                 alt="Motor Background"
                 width={800}
                 height={800}
@@ -69,15 +69,15 @@ export default function Hero() {
             </div>
 
             {/* Heading */}
-            <div className="space-y-2 -mt-3 sm:-mt-2">
+            <div className="space-y-1.5 -mt-4 sm:-mt-2">
               <div className="relative pb-16 sm:pb-20 lg:pb-0 lg:static overflow-visible">
 
-                <h1 className="relative z-10 max-w-[68%] text-6xl sm:text-7xl md:text-8xl font-black leading-[0.9] tracking-tight text-[#1a1a1a] lg:max-w-none">
-                  Sewa
-                  <span className="block mt-2 bg-gradient-to-r from-[#2563EB] to-[#3B82F6] bg-clip-text text-transparent">
+                <h1 className="relative z-10 max-w-[68%] text-6xl sm:text-7xl md:text-8xl font-black leading-[0.9] tracking-tight lg:max-w-none">
+                  <span className="block text-[#111827]">Sewa</span>
+                  <span className="block mt-2 text-[#2563EB]">
                     Motormu
                   </span>
-                  <span className="block text-4xl sm:text-5xl md:text-6xl font-bold tracking-normal mt-3">
+                  <span className="block text-4xl sm:text-5xl md:text-6xl font-bold tracking-normal mt-3 text-[#111827]">
                     Sekarang!
                   </span>
                 </h1>
@@ -99,22 +99,22 @@ export default function Hero() {
                 </div>
               </div>
 
-              <div className="h-1 w-24 bg-gradient-to-r from-[#2563EB] to-transparent rounded-full"></div>
+              <div className="h-1.5 w-16 bg-gradient-to-r from-transparent via-[#2563EB] to-transparent rounded-full blur-[0.5px]"></div>
             </div>
 
             {/* Description */}
-            <p className="text-lg leading-relaxed text-[#1a1a1a]/70 max-w-md font-medium">
+            <p className="text-lg leading-relaxed text-[#374151] max-w-md font-medium mt-1">
               Proses Cepat, verifikasi Aman, Motor Siap Pakai.
-              <span className="block mt-2 text-[#2563EB] font-bold">
+              <span className="block mt-2 text-[#1D4ED8] font-bold">
                 Solusi Mudah Transportasi Anda!
               </span>
             </p>
 
             {/* CTA */}
-            <div className="flex flex-wrap gap-4 pt-4">
+            <div className="flex flex-wrap gap-4 pt-3">
               <a
                 href="/motors"
-                className="group relative inline-flex items-center gap-3 bg-[#1a1a1a] text-white px-8 py-4 rounded-2xl font-bold text-lg overflow-hidden transition-all hover:scale-105 hover:shadow-2xl hover:shadow-[#1a1a1a]/20"
+                className="group relative inline-flex items-center gap-3 bg-[#111827] text-white px-8 py-4 rounded-2xl font-bold text-lg overflow-hidden transition-all hover:scale-105 hover:shadow-2xl hover:shadow-[#111827]/20"
               >
                 <span className="absolute inset-0 bg-gradient-to-r from-[#2563EB] to-[#3B82F6] opacity-0 group-hover:opacity-100 transition-opacity"></span>
                 <span className="relative">Lihat Motor</span>
@@ -126,14 +126,14 @@ export default function Hero() {
 
               <a
                 href="#alur"
-                className="inline-flex items-center gap-2 px-8 py-4 rounded-2xl font-bold text-lg border-2 border-[#1a1a1a]/10 text-[#1a1a1a] hover:border-[#2563EB] hover:text-[#2563EB] transition-all"
+                className="inline-flex items-center gap-2 px-8 py-4 rounded-2xl font-bold text-lg border-2 border-[#1a1a1a]/10 text-[#374151] hover:border-[#2563EB] hover:text-[#1D4ED8] transition-all"
               >
                 Cara Sewa
               </a>
             </div>
 
             {/* Stats */}
-            <div className="flex gap-8 pt-8 border-t border-[#1a1a1a]/10">
+            <div className="flex gap-8 pt-6 border-t border-[#1a1a1a]/10">
               <div>
                 <div className="text-3xl font-black text-[#2563EB]">500+</div>
                 <div className="text-sm font-medium text-[#1a1a1a]/60 uppercase tracking-wide">
@@ -141,13 +141,13 @@ export default function Hero() {
                 </div>
               </div>
               <div>
-                <div className="text-3xl font-black text-[#2563EB]">15+</div>
+                <div className="text-3xl font-black text-[#B91C1C]">15+</div>
                 <div className="text-sm font-medium text-[#1a1a1a]/60 uppercase tracking-wide">
                   Unit Motor
                 </div>
               </div>
               <div>
-                <div className="text-3xl font-black text-[#2563EB]">4.9</div>
+                <div className="text-3xl font-black text-[#111827]">4.9</div>
                 <div className="text-sm font-medium text-[#1a1a1a]/60 uppercase tracking-wide">
                   Rating
                 </div>
@@ -159,17 +159,17 @@ export default function Hero() {
           <div className="hidden lg:block relative animate-in slide-in-from-right duration-700 animation-delay-300 lg:self-start -mt-8">
             <div className="relative transform hover:scale-105 transition-transform duration-500 lg:-mt-4">
                 <Image
-                  src="/images/rentalbaru1.png"
+                  src="/images/rentaldepok1.png" 
                 alt="Motor"
                 width={800}
                 height={800}
-                className="w-full h-auto max-w-[280px] sm:max-w-[380px] md:max-w-[500px] lg:max-w-[620px] ml-auto relative z-10"
+                className="w-full h-auto max-w-[280px] sm:max-w-[380px] md:max-w-[500px] lg:max-w-[725px] ml-auto relative z-10"
                 priority
               />
             </div>
 
             {/* Floating Card */}
-            <div className="absolute bottom-8 sm:bottom-12 -left-2 sm:-left-4 bg-white p-4 sm:p-6 rounded-2xl sm:rounded-3xl shadow-lg sm:shadow-xl border border-[#1a1a1a]/5 animate-in zoom-in duration-700 animation-delay-1000 hover:scale-105 transition-transform">
+            <div className="absolute bottom-8 sm:bottom-12 -left-2 sm:-left-4 bg-white p-4 sm:p-6 rounded-2xl sm:rounded-3xl shadow-lg sm:shadow-xl border border-[#1a1a1a]/5 animate-in zoom-in duration-700 animation-delay-1000 hover:scale-105 transition-transform z-30">
               <div className="flex items-center gap-3 sm:gap-4">
                 <div className="w-10 sm:w-12 h-10 sm:h-12 rounded-full bg-gradient-to-br from-[#2563EB] to-[#3B82F6] flex items-center justify-center flex-shrink-0">
                   <BadgeDollarSign className="w-5 sm:w-6 h-5 sm:h-6 text-white" />
